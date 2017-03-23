@@ -100,10 +100,8 @@ class FG_GridPerZone extends React.Component {
         }
     ];
     return (
-
       <Griddle onRowClick= {this.onRowClick.bind(this)} results={this.props.data} columnMetadata={columnMeta} resultsPerPage={5}
       columns={["Folio","Estado Tramite", "Nombre", "Apellido", "Fecha Creacion","Origen Factibilidad", "Punto Conexion","Creador"]}/>
-
     );
   }
 }
