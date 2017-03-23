@@ -3,6 +3,7 @@ import myLayers from './layers-service';
 import token from '../services/token-service';
 import createQueryTask from '../services/createquerytask-service';
 import cookieHandler from 'cookie-handler';
+import env from '../services/factigis_services/config';
 
 function getFormatedDate(){
   var d = new Date();
@@ -85,11 +86,11 @@ function getUserPermission(user, token, callback){
 
     },(errorQuery)=>{
         console.log("Error performing query for getUserPermissions", errorQuery);
-        return callback("NOPERMISSIONS")
+        return callback(["NOPERMISSIONS"])
     });
 }
 
-function factigisLogin(user,pass){
+function factigisLogin(user,pass, callback2){
   const url = myLayers.read_tokenURL();
 
   const data = {
@@ -109,11 +110,11 @@ function factigisLogin(user,pass){
   .done(myToken => {
     if(myToken.indexOf('Exception') >= 0) {
       notifications('Login incorrecto, intente nuevamente.', 'Login_Error', '.notification-login');
-      return;
+      return callback([false,false,'Login incorrecto, intente nuevamente.']);
     }
     if (myToken.indexOf('error') >= 0){
       notifications('Login incorrecto, intente nuevamente.', 'Login_Error', '.notification-login');
-      return;
+      return callback([false,false,'Login incorrecto, intente nuevamente.']);
     }
     //IF EVERYTHING IS OK , GOING TO:
     console.log('writing token into system', myToken);
@@ -121,12 +122,12 @@ function factigisLogin(user,pass){
     cookieHandler.set('wllExp',getFormatedDateExp());
     //if the login is correct. Get user permission:
     getUserPermission(user, myToken, (UserPermissions)=>{
+      console.log(UserPermissions)
 
-
-        if(UserPermissions=='NOPERMISSIONS'){
+        if(!UserPermissions.length){
           console.log('User doesnt have permissions for any application, dashboard empty...');
           notifications("Usuario sin permisos","Login_Error", ".notification-login");
-
+          return callback2([false,false,'Usuario sin permisos. ']);
         }else{
           console.log('User has permissions...requesting service access and login in to FACTIGIS_DASHBOARD');
 
@@ -146,26 +147,28 @@ function factigisLogin(user,pass){
 
           //va a dashboard o factigis directamente dependiendo permisos del usuario para los modulos y widgets.
             if(!goesTo.length){
-              const page = "REACT_FACTIGIS_DESA";
+              const page = env.SAVEAPPLICATIONNAME;
               const module = "FACTIGIS_CREAR_FACTIBILIDAD";
               const date = getFormatedDate();
 
-              saveGisredLogin(user,date,page,module,myToken);
+              //saveGisredLogin(user,date,page,module,myToken);
               notifications("Logging in...","Login_Success", ".notification-login");
                 getProfile(user, userProfile =>{
                     console.log("esto llega",userProfile);
                   if(!userProfile.length){
                     console.log("El usuario no posee un perfil para el modulo");
-                    return;
+                    return callback2([false,false,'El usuario no posee un perfil para el modulo...']);
                   }
-                  cookieHandler.set('usrprfl',userProfile[0].attributes);
 
-                window.location.href = "factigis.html";
+
+                cookieHandler.set('usrprfl',userProfile[0].attributes);
+                return callback2([true,true,'Iniciando sesión...',"factigis.html"]);
+                //window.location.href = "factigis.html";
                 });
 
             }else{
               //Save that the user is in dashboard
-              const page = "REACT_FACTIGIS_DESA";
+              const page = env.SAVEAPPLICATIONNAME;
               const module = "FACTIGIS_DASHBOARD";
               const date = getFormatedDate();
 
@@ -175,10 +178,11 @@ function factigisLogin(user,pass){
                   console.log("esto llega",userProfile);
                 if(!userProfile.length){
                   console.log("El usuario no posee un perfil para el modulo");
-                  return;
+                  return callback2([true,false,'El usuario no posee un perfil para el modulo...']);
                 }
                 cookieHandler.set('usrprfl',userProfile[0].attributes);
-                window.location.href = "factigisDashboard.html";
+                return callback2([true,true,'Iniciando sesión...',"factigisDashboard.html"]);
+                //window.location.href = "factigisDashboard.html";
               });
 
 
@@ -190,6 +194,7 @@ function factigisLogin(user,pass){
   .fail(error => {
     console.log("Problem:" , error);
     notifications("Problema al iniciar sesión. Intente nuevamente.","Login_Failed", ".notification-login");
+    return callback2([false,false,'Login incorrecto, intente nuevamente.']);
   });
 
   console.log('gisred login done');

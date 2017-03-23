@@ -26,7 +26,8 @@ import cookieHandler from 'cookie-handler';
 import _ from 'lodash';
 import Rut from 'rutjs';
 import {getFormatedDate} from '../../services/login-service';
-
+//21 02 2017: añaddiendo progress bar
+import ProgressBar from 'react-toolbox/lib/progress_bar';
 
 var Tab = ReactTabs.Tab;
 var Tabs = ReactTabs.Tabs;
@@ -442,16 +443,30 @@ class Factigis_Add extends React.Component {
       $('.factigis_btnSelectCliente').css('color',"crimson").css('border-color','red');
 
       var map_click_handle = dojo.connect(map, 'onClick', (g)=>{
-        $("#iframeloadingAdd").show();
+      //  $("#iframeloadingAdd").show();
+        $(".drawer_progressBar").css('visibility','visible');
         //saves geometry point for customer.
         this.setState({factigis_geoCliente: g.mapPoint, factigis_geoClienteValidator:true});
 
         factigis_findComuna(g.mapPoint, (cb)=>{
-          console.log("comuna",cb[0].attributes.nombre);
+          if(!cb.length){
+            this.setState({
+              open: true,
+              problemsforAdding: 'No se ha podido encontrar la comuna, intente nuevamente.',
+              btnModalCloseStatus: false
+            });
+              //$("#iframeloadingAdd").hide();
+              $(".drawer_progressBar").css('visibility','hidden');
+              this.setState({toggleCliente: 'OFF'});
+              dojo.disconnect(this.state.btnCliente);
+              $('.factigis_btnSelectCliente').css('color',"black").css('border-color','initial');
+            return;
+          }
+          //console.log("comuna",cb[0].attributes.nombre);
           let comunaa = cb[0].attributes.nombre;
           //getting zone due to user click on map.
           var zona = getZona(cb[0].attributes.nombre);
-          console.log("my zone",zona);
+          //console.log("my zone",zona);
 
           //validar factibilidad.
           var zones = factigis_validator(g.mapPoint, (callbackMain)=>{
@@ -489,7 +504,8 @@ class Factigis_Add extends React.Component {
           map.graphics.clear();
           let pointSymbol = makeSymbol.makePointCustomer();
           map.graphics.add(new esri.Graphic(g.mapPoint,pointSymbol));
-          $("#iframeloadingAdd").hide();
+        //  $("#iframeloadingAdd").hide();
+          $(".drawer_progressBar").css('visibility','hidden');
         });
 
       });
@@ -501,7 +517,8 @@ class Factigis_Add extends React.Component {
       this.setState({toggleCliente: 'OFF'});
       $('.factigis_btnSelectCliente').css('color',"black").css('border-color','initial');
       dojo.disconnect(this.state.btnCliente);
-      $("#iframeloadingAdd").hide();
+      //$("#iframeloadingAdd").hide();
+      $(".drawer_progressBar").css('visibility','hidden');
       ////////console.log("this is my saved point for cliente", this.state.factigis_geoCliente);
     }
   }
@@ -529,14 +546,28 @@ class Factigis_Add extends React.Component {
     });
 
     this.setState({toggleCliente: 'OFF',  toggleTramo: 'OFF', toggleDireccion: 'OFF'});
-    console.log(e,this.state.togglePoste)
+
     if (this.state.togglePoste =='OFF'){
       this.setState({togglePoste: 'ON'});
         $('.factigis_btnSelectPoste').css('color',"crimson").css('border-color','red');
 
         var map_click_handle = dojo.connect(map, 'onClick', (g)=>{
-          $("#iframeloadingAdd").show();
+          //$("#iframeloadingAdd").show();
+          $(".drawer_progressBar").css('visibility','visible');
           factigis_findRotulo(g.mapPoint, (featureSetFeatures)=>{
+            if(!featureSetFeatures.length){
+              this.setState({
+                open: true,
+                problemsforAdding: 'No se ha podido encontrar el rótulo, intente nuevamente.',
+                btnModalCloseStatus: false
+              });
+              //$("#iframeloadingAdd").hide();
+              $(".drawer_progressBar").css('visibility','hidden');
+                this.setState({togglePoste: 'OFF'});
+                dojo.disconnect(this.state.btnPoste);
+                $('.factigis_btnSelectPoste').css('color',"black").css('border-color','initial');
+              return;
+            }
             // verificar si es camara o poste
             if(featureSetFeatures[0].attributes['tipo_nodo']=="ele!camara"){
               //es camara
@@ -580,7 +611,8 @@ class Factigis_Add extends React.Component {
               btnDireccionDisabled: true,
               factigisIDNodo: featureSetFeatures[0].attributes['id_nodo']
             });
-            $("#iframeloadingAdd").hide();
+            //$("#iframeloadingAdd").hide();
+              $(".drawer_progressBar").css('visibility','hidden');
           });
 
         });
@@ -588,6 +620,7 @@ class Factigis_Add extends React.Component {
     }else{
       this.setState({togglePoste: 'OFF'});
         $('.factigis_btnSelectPoste').css('color',"black");
+          $(".drawer_progressBar").css('visibility','hidden');
         dojo.disconnect(this.state.btnPoste);
         ////////console.log("this is my saved point for poste", this.state.factigis_geoPoste);
     }
@@ -603,7 +636,7 @@ class Factigis_Add extends React.Component {
     var addmtayer = setLayers().factigis_MT();
     document.getElementById('check_MT').checked=true;
     map.addLayer(addmtayer,1);
-
+    $(".drawer_progressBar").css('visibility','visible');
     //turn off the other toggle buttons from the same window.
     toggleOff('cliente', this.state.btnCliente, this.state.toggleCliente);
     toggleOff('poste', this.state.btnPoste, this.state.togglePoste);
@@ -626,7 +659,8 @@ class Factigis_Add extends React.Component {
         $('.factigis_btnSelectTramo').css('color',"crimson").css('border-color','red');
 
         var map_click_handle = dojo.connect(map, 'onClick', (g)=>{
-          $("#iframeloadingAdd").show();
+          //$("#iframeloadingAdd").show();
+
           if(this.state.factigis_selectedValueTipoEmpalmeBTMT==""){
             this.setState({
               open: true,
@@ -634,6 +668,8 @@ class Factigis_Add extends React.Component {
               numeroFactibilidad: '',
               btnModalCloseStatus: false,
             });
+              $(".drawer_progressBar").css('visibility','hidden');
+            return;
 
           }else{
             factigis_findTramo(g.mapPoint, this.state.factigis_selectedValueTipoEmpalmeBTMT, (featureSetFeatures)=>{
@@ -653,7 +689,8 @@ class Factigis_Add extends React.Component {
                   factiTipoFactibilidad: featureSetFeatures.tipoFactibilidad
                 });
               }
-              $("#iframeloadingAdd").hide();
+              //$("#iframeloadingAdd").hide();
+              $(".drawer_progressBar").css('visibility','hidden');
             });
 
           }
@@ -663,6 +700,7 @@ class Factigis_Add extends React.Component {
       this.setState({togglePoste: 'OFF'});
         $('.factigis_btnSelectPoste').css('color',"black");
         dojo.disconnect(this.state.btnPoste);
+        $(".drawer_progressBar").css('visibility','hidden');
         ////////console.log("this is my saved point for poste", this.state.factigis_geoPoste);
     }
   }
@@ -681,7 +719,8 @@ class Factigis_Add extends React.Component {
         $('.factigis_btnSelectDireccion').css('color',"crimson");
 
         var map_click_handle = dojo.connect(map, 'onClick', (g)=>{
-          $("#iframeloadingAdd").show();
+          //$("#iframeloadingAdd").show();
+          $(".drawer_progressBar").css('visibility','visible');
           factigis_findDireccion(g.mapPoint, (featureSetFeatures)=>{
             //if theres no results for old addresses, search in new ones.
             if(!featureSetFeatures.length){
@@ -689,6 +728,14 @@ class Factigis_Add extends React.Component {
               factigis_findNewDireccion(g.mapPoint, (featureSetFeatures)=>{
                 if(!featureSetFeatures.length){
                   //////console.log("not detected any in old or new adresses");
+                  this.setState({
+                    open: true,
+                    problemsforAdding: 'Problema encontrando dirección, intente nuevamente',
+                    numeroFactibilidad: '',
+                    btnModalCloseStatus: false,
+                  });
+                    $(".drawer_progressBar").css('visibility','hidden');
+                  return;
                 }else{
                   //////console.log("detected in new addresses");
                   let direccion = featureSetFeatures[0].attributes['CALLE'] + " " + featureSetFeatures[0].attributes['NUMERO'];
@@ -708,7 +755,8 @@ class Factigis_Add extends React.Component {
                   map.graphics.add(new esri.Graphic(line,lineSymbol));
                   line2.addPath([this.state.factigis_geoCliente, this.state.factigis_geoDireccion]);
                   map.graphics.add(new esri.Graphic(line2,lineSymbol));
-                  $("#iframeloadingAdd").hide();
+                  //$("#iframeloadingAdd").hide();
+                  $(".drawer_progressBar").css('visibility','hidden');
                 }
               });
             //else , change the values for states and display the old address found.
@@ -731,7 +779,8 @@ class Factigis_Add extends React.Component {
               map.graphics.add(new esri.Graphic(line,lineSymbol));
               line2.addPath([this.state.factigis_geoCliente, this.state.factigis_geoDireccion]);
               map.graphics.add(new esri.Graphic(line2,lineSymbol));
-              $("#iframeloadingAdd").hide();
+              //$("#iframeloadingAdd").hide();
+              $(".drawer_progressBar").css('visibility','hidden');
             }
           });
 
@@ -744,6 +793,7 @@ class Factigis_Add extends React.Component {
     }else{
       this.setState({toggleDireccion: 'OFF'});
         $('.factigis_btnSelectDireccion').css('color',"black");
+        $(".drawer_progressBar").css('visibility','hidden');
         dojo.disconnect(this.state.btnDireccion);
         ////////console.log("this is my saved point for poste", this.state.factigis_geoPoste);
     }
@@ -875,7 +925,7 @@ class Factigis_Add extends React.Component {
         break;
 
       case 'ddlClasificacion':
-      console.log("haciendo click en ",val);
+      //console.log("haciendo click en ",val);
         if(!val){
         ////console.log("no hay value" , val);
           this.setState({factigisClasificacion:  'NODEFINIDO', factigisClasificacionValidator: false});
@@ -907,7 +957,8 @@ class Factigis_Add extends React.Component {
   //Function that adds a new customer but has to validate the other fields yet.
   onClickAgregarCliente(){
 
-    $("#iframeloadingAdd").show();
+    //$("#iframeloadingAdd").show();
+    $(".drawer_progressBar").css('visibility','visible');
     let tipoProvisorioDefinitivo = 'DEFINITIVO';
     if(this.state.radioEmpalmeProvisorio){
       tipoProvisorioDefinitivo="PROVISORIO";
@@ -1020,7 +1071,8 @@ class Factigis_Add extends React.Component {
                 problemsforAdding: 'La dirección para la factibilidad excede el largo (75) permitido. No se puede agregar.',  numeroFactibilidad: '',
                 btnModalCloseStatus: false
               });
-              $("#iframeloadingAdd").hide();
+              //$("#iframeloadingAdd").hide();
+              $(".drawer_progressBar").css('visibility','hidden');
               return;
             }
 
@@ -1035,7 +1087,8 @@ class Factigis_Add extends React.Component {
                   btnModalCloseStatus: false
                 });
 
-                $("#iframeloadingAdd").hide();
+                //$("#iframeloadingAdd").hide();
+                $(".drawer_progressBar").css('visibility','hidden');
                 //GENERAR CARTA: guardar en cookie los parametros con que fue generada la factibilidad para crear la carta.
                 let usrprfl = cookieHandler.get('usrprfl');
                 cookieHandler.set('myLetter',[this.state.factigisDireccion + ", " + this.state.factCartaComuna ,
@@ -1055,7 +1108,8 @@ class Factigis_Add extends React.Component {
                   problemsforAdding: 'Hubo un problema al agregar la factibilidad',  numeroFactibilidad: '',
                   btnModalCloseStatus: false
                 });
-                $("#iframeloadingAdd").hide();
+                // $("#iframeloadingAdd").hide();
+                $(".drawer_progressBar").css('visibility','hidden');
               }
 
             });
@@ -1072,7 +1126,8 @@ class Factigis_Add extends React.Component {
               problemsforAdding: 'La dirección para la factibilidad excede el largo (75) permitido. No se puede agregar.',  numeroFactibilidad: '',
               btnModalCloseStatus: false
             });
-            $("#iframeloadingAdd").hide();
+          //  $("#iframeloadingAdd").hide();
+            $(".drawer_progressBar").css('visibility','hidden');
             return;
           }
 
@@ -1125,7 +1180,8 @@ class Factigis_Add extends React.Component {
                   problemsforAdding: 'No se puede agregar porque está dentro de zona transmisión y fuera de concesión',
                   btnModalCloseStatus: false
                 });
-                $("#iframeloadingAdd").hide();
+                //$("#iframeloadingAdd").hide();
+                $(".drawer_progressBar").css('visibility','hidden');
                 return;
             //Si está fuera de la zona de transmisión
               }else{
@@ -1151,7 +1207,9 @@ class Factigis_Add extends React.Component {
                     btnModalCloseStatus: false
                     });
 
-                    $("#iframeloadingAdd").hide();
+                    //$("#iframeloadingAdd").hide();
+                    $(".drawer_progressBar").css('visibility','hidden');
+
                     //GENERAR CARTA: guardar en cookie los parametros con que fue generada la factibilidad para crear la carta.
                     let usrprfl = cookieHandler.get('usrprfl');
                     cookieHandler.set('myLetter',[this.state.factigisDireccion + ", " + this.state.factCartaComuna ,
@@ -1171,7 +1229,8 @@ class Factigis_Add extends React.Component {
                       problemsforAdding: cb[1],  numeroFactibilidad: '',
                       btnModalCloseStatus: false
                     });
-                    $("#iframeloadingAdd").hide();
+                    //$("#iframeloadingAdd").hide();
+                    $(".drawer_progressBar").css('visibility','hidden');
                   }
                 });
                 return;
@@ -1187,7 +1246,8 @@ class Factigis_Add extends React.Component {
                 problemsforAdding: 'No se puede agregar debido a que está en zona de transmisión, pese a que está dentro de la concesión',
                 btnModalCloseStatus: false
               });
-              $("#iframeloadingAdd").hide();
+              //$("#iframeloadingAdd").hide();
+              $(".drawer_progressBar").css('visibility','hidden');
               return;
           }
           /*
@@ -1207,7 +1267,8 @@ class Factigis_Add extends React.Component {
         if(this.state.visibilityStyle.selectPotencia.visibility=='hidden'){
           $(".factigisPotencia").css('border-style','initial').css('border-width','0px');
         }
-        $("#iframeloadingAdd").hide();
+      //  $("#iframeloadingAdd").hide();
+        $(".drawer_progressBar").css('visibility','hidden');
       }
     });
 
@@ -1334,6 +1395,7 @@ class Factigis_Add extends React.Component {
     }
     return (
       <div className="wrapper_factigisAdd">
+      <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
       <Tabs onSelect={this.handleSelect} selectedIndex={this.state.selectedTab}>
         <TabList>
           {this.state.showA && <Tab><i className="fa fa-plus"></i></Tab>}

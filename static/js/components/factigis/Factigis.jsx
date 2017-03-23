@@ -30,6 +30,11 @@ class Factigis extends React.Component {
       return;
     }
 
+    if(!cookieHandler.get('usrprmssns').length){
+      window.location.href = "index.html";
+      return;
+    }
+
     let modulePermissions = cookieHandler.get('usrprmssns');
     let widgetPermissions = modulePermissions.map(wp=>{
       return wp.widget;
@@ -75,7 +80,7 @@ class Factigis extends React.Component {
       }, "search");
     search.startup();
 
-    const page = "REACT_FACTIGIS_DESA";
+    const page = env.SAVEAPPLICATIONNAME;
     const module = "FACTIGIS_CREAR_FACTIBILIDAD";
     const date = getFormatedDate();
     const user = cookieHandler.get('usrprfl')

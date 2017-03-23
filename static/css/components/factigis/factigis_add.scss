@@ -50,7 +50,7 @@ a {
 .wrapper_factigisAdd{
   display: flex;
   flex-direction: column;
-	padding: 0.5em 1em 1em 1em;
+	padding: 0.2em 1em 1em 1em;
 }
 
 
@@ -294,4 +294,12 @@ font-size: xx-small;
     width: 100%;
     height: 3.2em;
   }
+}
+
+//21 02 2017; progress Bar
+.drawer_progressBar{
+  visibility: hidden;
+  position: fixed;
+  display: flex;
+  width: 38.5%;
 }

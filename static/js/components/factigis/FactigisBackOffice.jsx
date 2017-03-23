@@ -23,7 +23,7 @@ import { AppBar, Checkbox, IconButton } from 'react-toolbox';
 import { Layout, NavDrawer, Panel, Sidebar } from 'react-toolbox';
 import env from '../../services/factigis_services/config';
 import {Button} from 'react-toolbox/lib/button';
-
+import {formatDateWithoutComma} from '../../utils/milliSecondsToDate';
 
 
 function createDataObject(){
@@ -153,6 +153,7 @@ class FactigisBackOffice extends React.Component {
       factB_distanciaRM: '',
       factB_distanciaDM: '',
       facB_clasificacion: '',
+      factB_comuna: '',
 
 
       //dynamic query
@@ -223,9 +224,12 @@ class FactigisBackOffice extends React.Component {
           'Creador': result.attributes['created_user'],
           'Clasificacion': result.attributes['Clasificacion'],
           'TiposFase':  result.attributes['Tipo_fase'],
-          'Punto Conexion': String(result.attributes['Poste_cnx_final'])
+          'Punto Conexion': String(result.attributes['Poste_cnx_final']),
+          'Fecha Creacion': formatDateWithoutComma(result.attributes['created_date']),
+          'Comuna': result.attributes['Comuna']
         }
         return theData;
+        console.log(loadData);
       });
         this.setState({myData: loadData});
         var prof = cookieHandler.get('usrprfl');
@@ -278,7 +282,9 @@ class FactigisBackOffice extends React.Component {
       facB_clasificacion: newState[0]['Clasificacion'],
       facB_tiposFase:  newState[0]['TiposFase'],
       facB_puntoConexion:  newState[0]['Punto Conexion'],
-      btnGuardarState: false
+      btnGuardarState: false,
+      factB_fechaCreacion: newState[0]['Fecha Creacion'],
+      factB_comuna: newState[0]['Comuna']
 
 
     });
@@ -376,7 +382,7 @@ class FactigisBackOffice extends React.Component {
       }, "BMToggle");
       toggle.startup();
 
-      const page = "REACT_FACTIGIS_DESA";
+      const page = env.SAVEAPPLICATIONNAME;
       const module = "FACTIGIS_REVISAR_FACTIBILIDAD";
       const date = getFormatedDate();
       const user = cookieHandler.get('usrprfl')
@@ -518,7 +524,8 @@ class FactigisBackOffice extends React.Component {
     btnGuardarState: true,
     rotuloFinal: '',
     togglePoste: 'OFF',
-    btnPoste: ''
+    btnPoste: '',
+    factB_comuna: ''
     });
   }
 
@@ -667,6 +674,7 @@ class FactigisBackOffice extends React.Component {
                 <h8 className="">Email: {this.state.facB_email}</h8>
                 <h8 className="">Tipo Cliente: {this.state.facB_tipoCliente}</h8>
                 <h8 className="">Tipo Contribuyente: {this.state.facB_tipoContribuyente}</h8>
+
                 <h6 className="factigis_bo1-h6"><b>Factibilidad: </b></h6>
                 <h8 className="">Tipo Factibilidad: {this.state.facB_tipoFactibilidad}</h8>
                 <h8 className="">Tipo Mejora: {this.state.facB_tipoMejora}</h8>
@@ -698,7 +706,7 @@ class FactigisBackOffice extends React.Component {
                 <h8 className="">Zona: {this.state.facB_zona}</h8>
                 <h8 className="">Distancia Rotulo - Medidor (m): {this.state.factB_distanciaRM}</h8>
                 <h8 className="">Distancia Dirección - Medidor (m): {this.state.factB_distanciaDM}</h8>
-
+                <h8 className="">Comuna: {this.state.factB_comuna}</h8>
               </div>
 
             </div>
