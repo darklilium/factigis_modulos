@@ -7,6 +7,7 @@ import {Button, IconButton} from 'react-toolbox/lib/button';
 import env from '../services/factigis_services/config';
 import {Snackbar} from 'react-toolbox';
 
+
 class LoginApp extends React.Component {
   constructor(){
     super();
@@ -19,25 +20,65 @@ class LoginApp extends React.Component {
 
     }
   }
+  handleClick = () => {
+   this.setState({active: true})
+  };
 
   onClick(){
     var userValue = this.state.username;
     var passValue =  this.state.password;
     //If they dont put any username or password
     if (userValue=="" || passValue==""){
-      notifications('Login incorrecto, intente nuevamente.', 'Login_Error', '.notification-login');
+      this.setState({snackbarMessage: 'Login Incorrecto. Ingrese usuario y password', snackbaropen: true});
+      this.handleClick();
+      //notifications('Login incorrecto, intente nuevamente.', 'Login_Error', '.notification-login');
       return;
     }
     //For domain users
     if (userValue.includes('vialactea\\')){
-      console.log("Trying to access REACT_FACTIGIS_DESA_DASHBOARD");
-      factigisLogin(userValue, passValue);
+      console.log("Trying to access" + env.SAVEAPPLICATIONNAME+ "_DASHBOARD");
+      factigisLogin(userValue, passValue,(cb)=>{
+        if( !cb[0] && !cb[1] ) {
+          this.setState({snackbarMessage: cb[2], snackbaropen: true});
+          this.handleClick();
+          return;
+        }
+        if( cb[0] && !cb[1] ){
+          this.setState({snackbarMessage: cb[2], snackbaropen: true});
+          this.handleClick();
+          return;
+        }
+
+        if( cb[0] && cb[1] ){
+          this.setState({snackbarMessage: cb[2], snackbaropen: true});
+          this.handleClick();
+        window.location.href = cb[3];
+        }
+
+      });
       return;
 
     }else {
-      console.log("Trying to access REACT_FACTIGIS_DESA_DASHBOARD");
+      console.log("Trying to access" + env.SAVEAPPLICATIONNAME+ "_DASHBOARD");
       userValue =  'vialactea\\'+this.state.username;
-      factigisLogin(userValue, passValue);
+      factigisLogin(userValue, passValue, (cb)=>{
+        if( !cb[0] && !cb[1] ) {
+          this.setState({snackbarMessage: cb[2], snackbaropen: true});
+          this.handleClick();
+          return;
+        }
+        if( cb[0] && !cb[1] ){
+          this.setState({snackbarMessage: cb[2], snackbaropen: true});
+          this.handleClick();
+          return;
+        }
+
+        if( cb[0] && cb[1] ){
+          this.setState({snackbarMessage: cb[2], snackbaropen: true});
+          this.handleClick();
+        window.location.href = cb[3];
+        }
+      });
     }
   }
 
@@ -88,7 +129,7 @@ class LoginApp extends React.Component {
             <div className="login_div">
             <img className="login_logo" src={src}></img>
             <Input className="login_input" type='text' label='Usuario' name='name' icon="person" value={this.state.username} onChange={this.handleChange.bind(this, 'username')} />
-            <Input className="login_input" type='password' label='Contraseña' name='name' icon="lock" value={this.state.password} onChange={this.handleChange.bind(this, 'password')} onKeyPress={this.handleKeyPress.bind(this)}  />
+            <Input className="theme__filled___1CY2o" type='password' label='Contraseña' name='name' icon="lock" value={this.state.password} onChange={this.handleChange.bind(this, 'password')} onKeyPress={this.handleKeyPress.bind(this)}  />
             <Button icon='power_settings_new' label='Login' raised primary className="login_button" onClick={this.onClick.bind(this)} />
             </div>
             <Snackbar action='Aceptar' active={this.state.active} icon='error' label={this.state.snackbarMessage} onClick={this.handleSnackbarClick.bind(this)} onTimeout={this.handleSnackbarTimeout} type='cancel' />
