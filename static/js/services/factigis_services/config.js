@@ -1,4 +1,4 @@
-const env = {
+/*const env = {
   ROOT: "dist/css/",
   CSSDIRECTORY: 'dist/css/', //using
   ROUTEPATH: '/',
@@ -7,16 +7,16 @@ const env = {
   SAVEAPPLICATIONMODULE: "FACTIGIS_DESA",
   SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_DESA'
 }
+*/
 
-/*
 const env = {
   ROOT: "css/",
   CSSDIRECTORY: 'css/',
   ROUTEPATH: '/FACTIGIS',
   ENVIRONMENT: 'PRODUCTION',
-  WEBSERVERADDRESS: "http://gisred.chilquinta/AP/",
+  WEBSERVERADDRESS: "",
   SAVEAPPLICATIONMODULE: "FACTIGIS_PROD",
   SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_PROD'
 }
-*/
+
 export default env;
