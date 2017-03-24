@@ -404,6 +404,11 @@ class FactigisBackOffice extends React.Component {
       this.setState({open: true, modalStatus: 'Por favor seleccione Estado de Trámite y/o Tipo Mejora antes de modificar.'});
       return;
     }
+
+    if(this.state.facb_observaciones.length>100){
+      console.log("La observación excede el máximo de carácteres permitido (100), por favor resuma su observación antes de que sea agregada.")
+      return;
+    }
     let myDataUpdate = {
       "OBJECTID": this.state.facB_folio,
       "Estado_tramite": this.state.cbEstadoValue,
@@ -467,7 +472,7 @@ class FactigisBackOffice extends React.Component {
     });
   }
 
-  onChangeObs(e){ this.setState({facb_observaciones: e.currentTarget.value });}
+  onChangeObs(e){console.log(e.currentTarget.value.length); this.setState({facb_observaciones:  e.currentTarget.value });}
 
   openModal () { this.setState({open: true}); }
 

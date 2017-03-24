@@ -726,7 +726,7 @@ class FactigisBackOfficeH extends React.Component {
           <div className="wrapper_bot_content">
             <h8 className="factigis_bo2-h8">Observaciones:</h8>
 
-            <input onChange={this.onChangeObs.bind(this)} id="factigis_txtObservacion" disabled={this.state.obsDisable} className="factigis_bo_txt" type="text" placeholder="Escriba observacion" value={this.state.facb_observaciones}  />
+            <input onChange={this.onChangeObs.bind(this)} maxLength="100" id="factigis_txtObservacion" disabled={this.state.obsDisable} className="factigis_bo_txt" type="text" placeholder="Escriba observacion" value={this.state.facb_observaciones}  />
             <button onClick={this.onClickGuardarObservacion.bind(this)} disabled={this.state.btnGuardarState} className="factigis_bo_btnModified btn btn-info" title="Guardar observación " type="button" >
               <span><i className="fa fa-floppy-o"></i> Guardar Observación</span>
             </button>
