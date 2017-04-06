@@ -1,4 +1,4 @@
-/*const env = {
+const env = {
   ROOT: "dist/css/",
   CSSDIRECTORY: 'dist/css/', //using
   ROUTEPATH: '/',
@@ -7,8 +7,8 @@
   SAVEAPPLICATIONMODULE: "FACTIGIS_DESA",
   SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_DESA'
 }
-*/
 
+/*
 const env = {
   ROOT: "css/",
   CSSDIRECTORY: 'css/',
@@ -18,5 +18,6 @@ const env = {
   SAVEAPPLICATIONMODULE: "FACTIGIS_PROD",
   SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_PROD'
 }
+*/
 
 export default env;

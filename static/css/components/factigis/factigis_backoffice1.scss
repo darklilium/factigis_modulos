@@ -170,7 +170,7 @@ div strong{
 .wrapper_bot_content {
   display: flex;
   flex-direction: row;
-  width: 75%;
+  width: 98%;
   align-self: center;
 }
 
@@ -185,7 +185,7 @@ div strong{
   margin-right: 0.5em;
 }
 .factigis_bo1_cbEstado{
-  width: 100%;
+  width: 20%;
 }
 
 
@@ -245,3 +245,7 @@ margin-left: 1em;
 .factigis_bo_btnModified{width: 100px; height: 36px;}
 
 .factigis_bo_txt{height: 36px;margin-right: 1em;}
+
+.factigis_obsText{
+  width: 50%;
+}

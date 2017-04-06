@@ -101,7 +101,8 @@ var tipoEstado = [
 var tipoMejora = [
   { value: 'POR DEFINIR', label: 'POR DEFINIR' },
 	{ value: 'MEJORA PREVIA', label: 'MEJORA PREVIA' },
-	{ value: 'MEJORA POST', label: 'MEJORA POST' }
+	{ value: 'MEJORA POST', label: 'MEJORA POST' },
+  { value: 'RECHAZADA', label: 'RECHAZADA'}
 ];
 
 var tiposFase = [

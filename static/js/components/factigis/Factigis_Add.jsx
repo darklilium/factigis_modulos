@@ -597,6 +597,7 @@ class Factigis_Add extends React.Component {
 
             //extrae datos de rotulo
             let rotulo = featureSetFeatures[0].attributes['rotulo'];
+            console.log("extraer rotulo",featureSetFeatures);
             var sed = featureSetFeatures[0].attributes['sed'];
             let alimentador = featureSetFeatures[0].attributes['alimentador'];
 

@@ -93,7 +93,8 @@ var tipoMejora = [
   { value: 'POR DEFINIR', label: 'POR DEFINIR' },
 	{ value: 'MEJORA PREVIA', label: 'MEJORA PREVIA' },
 	{ value: 'MEJORA POST', label: 'MEJORA POST' },
-  { value: 'CONEXION DIRECTA', label: 'CONEXION DIRECTA' }
+  { value: 'CONEXION DIRECTA', label: 'CONEXION DIRECTA' },
+  { value: 'RECHAZADA', label: 'RECHAZADA'}
 ];
 
 
@@ -773,7 +774,7 @@ class FactigisBackOffice extends React.Component {
           <div className="wrapper_bot_content">
             <h8 className="factigis_bo1-h8">Observaciones:</h8>
 
-            <input id="factigis_txtObservaciones" maxLength="100" className="marginRight05" value={this.state.facb_observaciones} onChange={this.onChangeObs.bind(this)} title="Observaciones" type="text" placeholder="Escriba su observación" />
+            <input id="factigis_txtObservaciones" maxLength="100" className="marginRight05 factigis_obsText" value={this.state.facb_observaciones} onChange={this.onChangeObs.bind(this)} title="Observaciones" type="text" placeholder="Escriba su observación" />
             <Select id="ddlEstadoFactibilidad" className="factigis_bo1_cbEstado marginRight05" onChange={this.onChange.bind(this)} options={this.state.opcionesEstado}
             simpleValue clearable={true} searchable={false} value={this.state.cbEstadoValue} placeholder="Seleccione Estado Trámite"/>
             <Select id="ddlTipoMejoraFactibilidad" className="factigis_bo1_cbEstado marginRight05" onChange={this.onChange2.bind(this)} options={this.state.opcionesMejora}
