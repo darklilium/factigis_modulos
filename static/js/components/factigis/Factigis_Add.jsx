@@ -28,6 +28,8 @@ import Rut from 'rutjs';
 import {getFormatedDate} from '../../services/login-service';
 //21 02 2017: añaddiendo progress bar
 import ProgressBar from 'react-toolbox/lib/progress_bar';
+//26/05/2017
+import NumericInput from 'react-numeric-input';
 
 var Tab = ReactTabs.Tab;
 var Tabs = ReactTabs.Tabs;
@@ -195,7 +197,8 @@ class Factigis_Add extends React.Component {
       //disable toggles btn less select cliente
       btnDireccionDisabled: true,
       btnPosteDisabled: true,
-      btnTramoDisabled: true
+      btnTramoDisabled: true,
+      factigis_selectedValueTipoPotencia: 0
 
 
     }
@@ -411,10 +414,15 @@ class Factigis_Add extends React.Component {
       break;
       case 'factigis_txtPotencia':
         if(!this.state.factigis_selectedValueTipoPotencia==''){
-          ////console.log("si factigis_cantidadEmpalmes",this.state.factigisCantidadEmpalmes);
-          this.setState({factigistxtPotenciaValidator: true});
+          if(this.state.factigis_selectedValueTipoPotencia>0){
+            this.setState({factigistxtPotenciaValidator: true});
+
+          }else{
+            this.setState({factigis_selectedValueTipoPotencia: Math.abs(this.state.factigis_selectedValueTipoPotencia)});
+            this.setState({factigistxtPotenciaValidator: true});
+          }
         }else{
-          ////console.log("no factigis_cantidadEmpalmes",this.state.factigisCantidadEmpalmes);
+          this.setState({factigis_selectedValueTipoPotencia: 0});
           this.setState({factigistxtPotenciaValidator: false});
         }
       break;
@@ -1283,7 +1291,6 @@ class Factigis_Add extends React.Component {
     this.setState({openModalValidator: false});
   }
 
-
   onClickLimpiarDatos(){
     var map = this.props.themap;
     map.graphics.clear();
@@ -1329,7 +1336,7 @@ class Factigis_Add extends React.Component {
       factigis_selectedValueTipoEmpalmePotencia: '',
       factigis_selectedValueTipoEmpalmeBTMT: '',
       factigis_selectedValueTipoFase: '',
-      factigis_selectedValueTipoPotencia: '',
+      factigis_selectedValueTipoPotencia: 0,
       factigisCantidadEmpalmes: '',
       factigisRutValidator: false,
       factigisNombreValidator: false,
@@ -1385,6 +1392,19 @@ class Factigis_Add extends React.Component {
     toggleOff('poste', this.state.btnPoste, this.state.togglePoste);
     toggleOff('direccion', this.state.btnDireccion, this.state.toggleDireccion);
     toggleOff('tramo', this.state.btnTramo, this.state.toggleTramo);
+  }
+
+
+  onKeyDownPositive(e){
+    var number = document.getElementById('number');
+
+    number.onkeydown = function(e) {
+        if(!((e.keyCode > 95 && e.keyCode < 106)
+          || (e.keyCode > 47 && e.keyCode < 58)
+          || e.keyCode == 8)) {
+            return false;
+        }
+    }
   }
 
   render(){
@@ -1522,7 +1542,19 @@ class Factigis_Add extends React.Component {
                   <h8>Potencia (kW):</h8>
                   <Select style={this.state.visibilityStyle.selectPotencia} onOpen={this.onOpen.bind(this)} id="ddlPotencia" disabled={false} className="factigis_selectEmpalme factigis_selectInput factigisPotencia " name="ddlPotencia" options={this.state.factigis_tipoPotencia} onChange={this.onChangeComboBox.bind(this,"tipoPotencia")}
                     value={this.state.factigis_selectedValueTipoPotencia} simpleValue clearable={true} searchable={false} placeholder="Seleccione potencia"/>
-                  <input style={this.state.visibilityStyle.txtPotencia} id="factigis_txtPotencia" value={this.state.factigis_selectedValueTipoPotencia} disabled={false} onChange={this.onChange.bind(this)} onBlur={this.onBlur} className="factigis-input factigis_input-solo factigisPotencia2" title="Ingrese potencia" type="text" placeholder="Potencia solicitada" />
+                  <input
+                  style={this.state.visibilityStyle.txtPotencia}
+                    id="factigis_txtPotencia"
+                    value={this.state.factigis_selectedValueTipoPotencia}
+                    disabled={false}
+                    onChange={this.onChange.bind(this)}
+                    onBlur={this.onBlur}
+                    className="factigis-input factigis_input-solo factigisPotencia2"
+                    title="Ingrese potencia"
+                    placeholder="Potencia solicitada"
+                    type="number"
+                    min="0"
+                  />
 
                 </div>
               </div>

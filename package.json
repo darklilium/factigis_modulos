@@ -53,6 +53,7 @@
     "react-image-gallery": "~0.6.4",
     "react-modal": "~1.4.0",
     "react-native": "~0.24.1",
+    "react-numeric-input": "^2.0.7",
     "react-select": "~1.0.0-beta13",
     "react-tabs": "^0.5.3",
     "redux": "~3.5.2",

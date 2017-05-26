@@ -612,7 +612,7 @@ class FactigisBackOfficeH extends React.Component {
         </Panel>
 
         <div className="bo2_table">
-          <FG_GridPerZoneH2 title={"Factibildades"} data={this.state.myData}  callbackParent={this.onChildChanged.bind(this)}/>
+          <FG_GridPerZoneH2 title={"Factibilidades"} data={this.state.myData}  callbackParent={this.onChildChanged.bind(this)}/>
           <div>
             <h1 className="factigisBO2_h1">Historial de Estados: <b className="factigis_bo2-b"></b></h1>
           </div>

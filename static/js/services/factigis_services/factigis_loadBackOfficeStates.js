@@ -37,7 +37,7 @@ function loadCurrentHistoryData(callback){
   qFact.outFields = ["*"];
   qTaskFact.execute(qFact, (featureSet)=>{
     if(featureSet.features.length){
-    //  console.log("encontre en la comuna:", comuna, "esto:", featureSet);
+    console.log("esto:", featureSet);
       return callback(featureSet.features)
     }else{
       //console.log("no hay", featureSet.features.length, comuna);
