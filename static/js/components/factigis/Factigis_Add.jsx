@@ -29,7 +29,7 @@ import {getFormatedDate} from '../../services/login-service';
 //21 02 2017: añaddiendo progress bar
 import ProgressBar from 'react-toolbox/lib/progress_bar';
 //26/05/2017
-import NumericInput from 'react-numeric-input';
+
 
 var Tab = ReactTabs.Tab;
 var Tabs = ReactTabs.Tabs;
