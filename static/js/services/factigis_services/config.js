@@ -1,15 +1,32 @@
+//Dev mode
+/*
 const env = {
-  ROOT: "dist/css/",
-  CSSDIRECTORY: 'dist/css/', //using
+  ROOT: "static/css/",
+  CSSDIRECTORY: 'static/css/', //using
   ROUTEPATH: '/',
   ENVIRONMENT: 'DEVELOPMENT',
   WEBSERVERADDRESS: "",
   SAVEAPPLICATIONMODULE: "FACTIGIS_DESA",
-  SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_DESA'
+  SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_DESA',
+  BUILDFOR: "INTERNA"
+}
+*/
+//test mode - interno
+
+const env = {
+  ROOT: "css/",
+  CSSDIRECTORY: 'css/', //using
+  ROUTEPATH: '/FACTIGIS',
+  ENVIRONMENT: 'PRODUCTION',
+  WEBSERVERADDRESS: "",
+  SAVEAPPLICATIONMODULE: "FACTIGIS_DESA",
+  SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_DESA',
+  BUILDFOR: "EXTERNA"
 }
 
 
 
+//prod mode: interno
 /*
 
 const env = {

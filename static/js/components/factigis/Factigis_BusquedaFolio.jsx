@@ -11,6 +11,7 @@ import $ from 'jquery';
 import cookieHandler from 'cookie-handler';
 import FG_GridObservation from './Factigis_GridObservation.jsx';
 import {loadFactStates} from '../../services/factigis_services/factigis_loadBackOfficeStates.js';
+import env from '../../services/factigis_services/config';
 
 const customStyles = {
   content : {
@@ -186,7 +187,7 @@ class Factigis_BusquedaFolio extends React.Component {
         <div className="factigisVE_pasoDiv">
           <div className="factigisBF_searchTitle">
             <h7><b>Búsqueda de Factibilidad</b></h7>
-            <img className="factigisBF_imgLoader" src="dist/css/images/ajax-loader.gif" alt="loading" id="iframeloading"/>
+            <img className="factigisBF_imgLoader" src={env.CSSDIRECTORY+"images/ajax-loader.gif"} alt="loading" id="iframeloading"/>
           </div>
 
           <div className="factigis_BigGroupbox">

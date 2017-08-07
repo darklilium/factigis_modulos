@@ -84,7 +84,7 @@ function restriccionZoneValidator(point,callback){
 
       return callback(true);
     }else{
-      //console.log("no hay", featureSet.features.length, "transmision");
+      console.log("no hay", featureSet.features.length, " restriccion");
       return callback(false);
     }
 
@@ -116,7 +116,7 @@ function transmisionZoneValidator(point,callback){
     }
 
   }, (Errorq)=>{
-    console.log(Errorq,"Error doing query for campamentos");
+    console.log(Errorq,"Error doing query for transmision");
     return callback("error");
 
   });
@@ -140,7 +140,7 @@ function vialidadZoneValidator(point,callback){
     }
 
   }, (Errorq)=>{
-    //console.log(Errorq,"Error doing query for vialidad");
+    console.log(Errorq,"Error doing query for vialidad");
     return callback("error");
 
   });

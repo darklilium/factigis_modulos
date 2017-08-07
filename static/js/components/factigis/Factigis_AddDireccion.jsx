@@ -12,6 +12,7 @@ import {factigis_findCalle} from '../../services/factigis_services/factigis_find
 import {factigis_addNuevaDireccion} from '../../services/factigis_services/factigis_add-service';
 import LayerList from  '../../components/LayerList.jsx';
 import Modal from 'react-modal';
+import env from '../../services/factigis_services/config';
 
 const customStyles = {
   content : {
@@ -241,7 +242,7 @@ class Factigis_AddDireccion extends React.Component {
         <div className="factigisVE_pasoDiv">
           <div className="factigisDir_searchTitle">
             <h7><b>Datos de Dirección</b></h7>
-            <img className="factigisDir_imgLoader" src="dist/css/images/ajax-loader.gif" alt="loading" id="iframeloadingDir"/>
+            <img className="factigisDir_imgLoader" src={env.CSSDIRECTORY+"images/ajax-loader.gif"} alt="loading" id="iframeloadingDir"/>
           </div>
             {/*  <hr className="factigis_hr-subtitle factigis_hr"/>*/}
           <div className="factigis_BigGroupbox">

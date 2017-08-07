@@ -28,7 +28,7 @@ import Rut from 'rutjs';
 import {getFormatedDate} from '../../services/login-service';
 //21 02 2017: añaddiendo progress bar
 import ProgressBar from 'react-toolbox/lib/progress_bar';
-//26/05/2017
+import env from '../../services/factigis_services/config';
 
 
 var Tab = ReactTabs.Tab;
@@ -1007,10 +1007,10 @@ class Factigis_Add extends React.Component {
 
         let factArr = [];
         //datos a mostrar en modal para indicar que existen problemas de factibilidad en ciertas zonas.
-      /*  if(this.state.zonaCampamentos==false){
+        if(this.state.zonaCampamentos==false){
           factArr.push("campamentos");
         }
-        */
+
         if(this.state.zonaConcesion==false){
           factArr.push("concesion");
         }
@@ -1176,10 +1176,11 @@ class Factigis_Add extends React.Component {
             factigisPropiedadPoste: this.state.factigisPropiedadPoste
             }
           //Si dentro del array de zonas hay problemas
+
           //Si está fuera de la zona concesión
           if($.inArray("concesion",factArr)>-1){
 
-            //Si esta dentro de la zona de transmisión
+            //Si esta dentro de la zona de transmisión = No agregar
               if($.inArray("transmision",factArr)>-1){
 
                 //no agregar
@@ -1192,7 +1193,7 @@ class Factigis_Add extends React.Component {
                 //$("#iframeloadingAdd").hide();
                 $(".drawer_progressBar").css('visibility','hidden');
                 return;
-            //Si está fuera de la zona de transmisión
+            //Si está fuera de la zona de transmisión = Asistida , aunque esté dentro o fuera de campamentos
               }else{
                 //agregar fact especial = asistida
                 //console.log("agregar como fact asistida debido a q está fuera de zona de concesión y fuera de transmision");
@@ -1244,8 +1245,9 @@ class Factigis_Add extends React.Component {
                 });
                 return;
               }
+
           }
-          //Si está dentro de concesión y también dentro de transmisión
+          //Si está dentro de concesión y también dentro de transmisión = No agregar
           if ($.inArray("transmision",factArr)>-1) {
 
               //en zona transmisión
@@ -1259,12 +1261,54 @@ class Factigis_Add extends React.Component {
               $(".drawer_progressBar").css('visibility','hidden');
               return;
           }
-          /*
-          if ($.inArray("restringida",factArr)>-1) {
-              fArr.push("restringida");
-                console.log("En zona restringida");
+          //Si está dentro de concesión y también dentro de campamentos = Asistida
+          if ($.inArray("campamentos",factArr)>-1) {
+                fArr.push("campamentos");
+                console.log("En zona campamentos");
+
+                this.setState({
+                  open: true,
+                  problemsforAdding: 'Procesando factibilidad, espere un momento'
+                });
+
+                factigis_addNuevaFactibilidad_especial(myFact, (cb)=>{
+                  if(cb[0]){
+                    this.setState({
+                    open: true,
+                    problemsforAdding: 'La factibilidad  ha sido agregada. Tipo: ' + cb[2]['Tipo_factibilidad'] ,
+                    numeroFactibilidad: 'N°' + cb[1],
+                    btnModalCloseStatus: false
+                    });
+
+                    //$("#iframeloadingAdd").hide();
+                    $(".drawer_progressBar").css('visibility','hidden');
+
+                    //GENERAR CARTA: guardar en cookie los parametros con que fue generada la factibilidad para crear la carta.
+                    let usrprfl = cookieHandler.get('usrprfl');
+                    cookieHandler.set('myLetter',[this.state.factigisDireccion + ", " + this.state.factCartaComuna ,
+                      this.state.factigisNombre + " " + this.state.factigisApellido,
+                      usrprfl.NOMBRE_COMPLETO,
+                      cb[1],
+                      usrprfl.CARGO,
+                      usrprfl.LUGAR_DE_TRABAJO,
+                      usrprfl.DEPARTAMENTO,
+                      usrprfl.COMUNA]);
+
+                      window.open("factigisCarta.html");
+                      //si no fue grabado mostrar que hubo problemas en modal
+                  }else{
+                    this.setState({
+                      open: true,
+                      problemsforAdding: cb[1],  numeroFactibilidad: '',
+                      btnModalCloseStatus: false
+                    });
+                    //$("#iframeloadingAdd").hide();
+                    $(".drawer_progressBar").css('visibility','hidden');
+                  }
+                });
+                return;
           }
-          */
+
           console.log("Problemas de zonas:", fArr);
         }
 
@@ -1431,7 +1475,7 @@ class Factigis_Add extends React.Component {
           <div className="factigisVE_pasoDiv">
             <div className="factigisAdd_searchTitle">
               <h7><b>Ingrese datos del contacto y ubicación del medidor:</b></h7>
-              <img className="factigisAdd_imgLoader" src="dist/css/images/ajax-loader.gif" alt="loading" id="iframeloadingAdd"/>
+              <img className="factigisAdd_imgLoader" src={env.CSSDIRECTORY+"images/ajax-loader.gif"} alt="loading" id="iframeloadingAdd"/>
             </div>
             {/*<hr className="factigis_hr-subtitle factigis_hr"/>*/}
             <div className="factigis_BigGroupbox">

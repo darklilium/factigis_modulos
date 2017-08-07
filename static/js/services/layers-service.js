@@ -6,11 +6,15 @@ import GraphicsLayer from 'esri/layers/GraphicsLayer';
 import env from '../services/factigis_services/config';
 
 function myLayers(){
-  const serviceMain = 'http://gisred.chilquinta/arcgis/';
-  //change this for external connection:
-  //const serviceMain = 'http://gisred.chilquinta.cl:5555/arcgis/';
-  const serviceURL = serviceMain + 'rest/services/';
   var graphicLayer = new GraphicsLayer;
+  var serviceMain , serviceURL;
+
+  if(env.BUILDFOR=="INTERNA"){
+    serviceMain = 'http://gisred.chilquinta/arcgis/';
+  }else{
+    serviceMain = 'http://gisred.chilquinta.cl:5555/arcgis/';
+  }
+   serviceURL = serviceMain + 'rest/services/';
 
   //check 8 and last one
   return {
@@ -154,7 +158,7 @@ function myLayers(){
       return serviceURL + "Chilquinta_006/Equipos_pto_006/MapServer?f=json&token=" + token.read();
     },
     read_campamentos(){
-      return serviceURL + "MANTENIMIENTO/Otras_Capas/MapServer/3?f=json&token=" + token.read();
+      return serviceURL + "MANTENIMIENTO/Otras_Capas/MapServer/4?f=json&token=" + token.read();
     },
     read_direcciones(){
       return serviceURL + "Cartografia/DMPS/MapServer/0?f=json&token=" + token.read();

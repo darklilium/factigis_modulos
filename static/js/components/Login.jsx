@@ -97,6 +97,7 @@ class LoginApp extends React.Component {
     //********Cambiar randomPicSrc para test/prod*******
     //let randomPicSrc = "css/images/login_images/loginwall"+ randomPicNumber+ ".jpg"; //prod
     let randomPicSrc = env.CSSDIRECTORY+ "images/login_images/loginwall"+ randomPicNumber+ ".jpg";//desarrollo
+    console.log(randomPicSrc);
   //  $('.login_wrapper').css("background-image", "url("+randomPicSrc+")");
   $('.login_wrapper_content').css("background-image", "url("+randomPicSrc+")").css('background-size','100% 100%');
 

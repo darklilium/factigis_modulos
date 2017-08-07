@@ -16,6 +16,8 @@ import {factigis_searchFolioByRut} from '../../services/factigis_services/factig
 import FG_GridFolios from './Factigis_GridFolios.jsx';
 import Rut from 'rutjs';
 import formatDate from '../../utils/milliSecondsToDate';
+import env from '../../services/factigis_services/config';
+
 const customStyles = {
   content : {
     top                   : '50%',
@@ -95,7 +97,7 @@ class Factigis_BusquedaRut extends React.Component {
         <div className="factigisVE_pasoDiv">
           <div className="factigisDir_searchTitle">
             <h7><b>Ingrese RUT a buscar</b></h7>
-            <img className="factigisDir_imgLoader" src="dist/css/images/ajax-loader.gif" alt="loading" id="iframeloadingDir"/>
+            <img className="factigisDir_imgLoader" src={env.CSSDIRECTORY+"images/ajax-loader.gif"} alt="loading" id="iframeloadingDir"/>
           </div>
 
           <div className="factigis_BigGroupbox">

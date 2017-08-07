@@ -11,7 +11,7 @@ import {layersActivated, setLayers} from '../../services/layers-service';
 import {factigis_findRotuloByNumber} from '../../services/factigis_services/factigis_find-service';
 import LayerList from  '../../components/LayerList.jsx';
 import Modal from 'react-modal';
-
+import env from '../../services/factigis_services/config';
 
 const customStyles = {
   content : {
@@ -106,7 +106,7 @@ class Factigis_BusquedaPoste extends React.Component {
         <div className="factigisVE_pasoDiv">
           <div className="factigisDir_searchTitle">
             <h7><b>Búsqueda de Poste</b></h7>
-            <img className="factigisBF_imgLoader" src="dist/css/images/ajax-loader.gif" alt="loading" id="iframeloadingPoste"/>
+            <img className="factigisBF_imgLoader" src={env.CSSDIRECTORY+"images/ajax-loader.gif"} alt="loading" id="iframeloadingPoste"/>
           </div>
 
           <div className="factigis_BigGroupbox">

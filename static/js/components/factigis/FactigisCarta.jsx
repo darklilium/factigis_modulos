@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import cookieHandler from 'cookie-handler';
-
+import env from '../../services/factigis_services/config';
+import dateFormat from 'dateformat';
 
 class FactigisCarta extends React.Component {
 
@@ -45,22 +46,14 @@ class FactigisCarta extends React.Component {
 
 
     var hoy = new Date();
-    var dd = hoy.getDate();
-    var mm = hoy.getMonth()+1; //hoy es 0!
-    var yyyy = hoy.getFullYear();
 
-    if(dd<10) {
-        dd='0'+dd
-    }
+    hoy.setDate(hoy.getDate());
+    hoy = dateFormat(hoy, "dd/mm/yyyy hh:MM:ss")
+    console.log("hoy",hoy);
 
-    if(mm<10) {
-        mm='0'+mm
-    }
-
-    hoy = mm+'/'+dd+'/'+yyyy;
 
     //dev
-    let image = "dist/css/images/factigis_images/logo_chq400.png";
+    let image = env.CSSDIRECTORY+"images/factigis_images/logo_chq400.png";
     //prod
     //let image = "css/images/factigis_images/logo_chq400.png";
 

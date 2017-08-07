@@ -4,6 +4,7 @@ import token from '../services/token-service';
 import createQueryTask from '../services/createquerytask-service';
 import cookieHandler from 'cookie-handler';
 import env from '../services/factigis_services/config';
+import dateFormat from 'dateformat';
 
 function getFormatedDate(){
   var d = new Date();
@@ -22,14 +23,9 @@ function getFormatedDate(){
 function getFormatedDateExp(){
   var d = new Date();
 
-  var str = "day/month/year hour:minute:second"
-    .replace('day', d.getDate() <10? '0'+ d.getDate()+1 : d.getDate()+1)
-    .replace('month', (d.getMonth() + 1) <10? '0' + (d.getMonth()+1) : (d.getMonth()+1))
-    .replace('year', d.getFullYear())
-    .replace('hour', d.getHours() <10? '0'+ d.getHours() : d.getHours() )
-    .replace('minute', d.getMinutes() <10? '0'+ d.getMinutes() : d.getMinutes())
-    .replace('second', d.getSeconds() <10? '0'+ d.getSeconds() : d.getSeconds());
-    console.log(str);
+  d.setDate(d.getDate()+1);
+  var str = dateFormat(d, "dd/mm/yyyy hh:MM:ss")
+  console.log("tomorrow",str);
   return str;
 }
 
