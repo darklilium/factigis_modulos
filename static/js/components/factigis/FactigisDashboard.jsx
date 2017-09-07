@@ -57,14 +57,17 @@ class FactigisDashboard extends React.Component {
   }
 
   componentDidMount(){
+    /*//var d = cookieHandler.get('wllExp');
+    var d = new Date(cookieHandler.get('wllExp'));
 
-    var d = cookieHandler.get('wllExp');
     if(d > getFormatedDate()){
-
+      console.log(d,"tengo",getFormatedDate());
     }else{
       console.log("expiro");
+      console.log(d,"tengo",getFormatedDate());
       window.location.href = "index.html";
     }
+    */
   }
 
   onClickDashboard(e){

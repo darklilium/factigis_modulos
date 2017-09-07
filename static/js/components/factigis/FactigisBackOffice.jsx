@@ -321,7 +321,7 @@ class FactigisBackOffice extends React.Component {
   }
 
   componentDidMount(){
-    var d = cookieHandler.get('wllExp');
+  /*  var d = cookieHandler.get('wllExp');
       if(d > getFormatedDate()){
         console.log("dentro del rango");
         if(!cookieHandler.get('tkn')){
@@ -334,7 +334,7 @@ class FactigisBackOffice extends React.Component {
         window.location.href = "index.html";
         return;
       }
-
+*/
       $("#iframeloadingBO").show();
     //ADD LAYER TO SHOW IN THE MAP
       let prfl = cookieHandler.get('usrprfl');

@@ -148,9 +148,6 @@ function myLayers(){
     read_factigis_vialidad(){
         return serviceURL + "PMS/Vialidad/MapServer/0?f=json&token=" + token.read();
     },
-    read_factigis(){
-        return serviceURL + "PMS/Concesiones/MapServer?f=json&token=" + token.read();
-    },
     read_factigis2(){
         return serviceURL + "PMS/Vialidad/MapServer?f=json&token=" + token.read();
     },

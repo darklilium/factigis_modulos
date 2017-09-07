@@ -285,6 +285,7 @@ class FactigisBackOfficeH extends React.Component {
   }
 
   componentDidMount(){
+    /*
     var d = cookieHandler.get('wllExp');
       if(d > getFormatedDate()){
 
@@ -295,7 +296,7 @@ class FactigisBackOfficeH extends React.Component {
       }else{
         console.log("Token Expired");
         window.location.href = "index.html";
-      }
+      }*/
 
     //ADD LAYER TO SHOW IN THE MAP
     $("#iframeloadingBO1").show();

@@ -22,7 +22,6 @@ function getFormatedDate(){
 
 function getFormatedDateExp(){
   var d = new Date();
-
   d.setDate(d.getDate()+1);
   var str = dateFormat(d, "dd/mm/yyyy hh:MM:ss")
   console.log("tomorrow",str);
@@ -34,7 +33,7 @@ function saveGisredLogin(user, fech, page, mod, tkn){
 
   const data = {
     f: 'json',
-    adds: JSON.stringify([{ attributes: { "usuario": user, fecha: fech , "pagina": page, "modulo": mod  }, geometry: {} }]),
+    adds: JSON.stringify([{ attributes: { "usuario": user, fecha: fech , "pagina": page.concat(env.VERSION), "modulo": mod  }, geometry: {} }]),
     token: tkn
   };
 

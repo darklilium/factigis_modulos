@@ -5,7 +5,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   context: __dirname,
-  devtool: 'inline-source-map',
+  //devtool: 'inline-source-map',
   entry: {
     //put ur bundle files here.
          login: './static/js/bundles/login.js',
@@ -15,7 +15,7 @@ module.exports = {
          factigisBackoffice: './static/js/bundles/factigisBackoffice.js',
          factigisBackoffice2: './static/js/bundles/factigisBackoffice2.js',
     vendor: [
-    
+
     ]
   },
   output: {

@@ -222,7 +222,7 @@ class Factigis_Add extends React.Component {
   }
 
   componentDidMount(){
-
+    /*
     var d = cookieHandler.get('wllExp');
       if(d > getFormatedDate()){
       //  console.log("dentro del rango");
@@ -234,7 +234,7 @@ class Factigis_Add extends React.Component {
         console.log("Token expired");
         window.location.href = "index.html";
       }
-
+      */
     //show widgets for each user permission available
     ////console.log(this.props.permissions);
     let showA = this.props.permissions.filter(p=>{
