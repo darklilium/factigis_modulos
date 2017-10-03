@@ -164,8 +164,6 @@ function factigis_addNuevaFactibilidad(factibilidad, callbackadd){
                   factibilidad.factigisTipoMejora = "POR DEFINIR";
                 }
 
-
-
                 console.log("agregar lo siguiente a arcgis srv", factibilidad);
 
                 agregarFact(factibilidad,(isDone)=>{
@@ -389,7 +387,6 @@ function agregarFact(f, callback){
     posteFactibilizador = f.factigisRotulo;
   }
 
-
   var myAttributes = {
     Rut : f.factigisRut,
     Nombre : f.factigisNombre,
@@ -483,7 +480,7 @@ function agregarFactEspecial(f, callback){
 
 
   let opcionCampamento, opcionConcesion, opcionVialidad, opcionTransmision, opcionRestringida;
-  console.log("llega de zonas:", "Camp:", f.factigisZonaCampamentos, "conce: ",f.factigisZonaConcesion,"vial:" ,f.factigisZonaVialidad, "trans:",f.factigisZonaTransmision, "rest",f.factigisZonaRestringida);
+  console.log("llega de zonas especial:", "Camp:", f.factigisZonaCampamentos, "conce: ",f.factigisZonaConcesion,"vial:" ,f.factigisZonaVialidad, "trans:",f.factigisZonaTransmision, "rest",f.factigisZonaRestringida);
   //ESTA EN CAMPAMENTO?
   if(f.factigisZonaCampamentos){
     opcionCampamento = 'NO';
@@ -565,7 +562,7 @@ function agregarFactEspecial(f, callback){
 
   }
 
-  console.log("agregando...",myAttributes);
+  console.log("agregando especial...",myAttributes);
 
   let geox = f.factigisGeoCliente.x;
   let geoy=  f.factigisGeoCliente.y;
@@ -690,7 +687,7 @@ function factigis_addNuevaFactibilidad_especial(factibilidad, callbackadd){
                   //asignar potencia disponible para SED
                   factibilidad.factigisPotenciaDisponibleSED = potenciaDisponible;
 
-                  console.log("tengo la siguiente factibilidad",factibilidad.factigisTipoFactibilidad);
+                  console.log("tengo la siguiente factibilidad ---- > especial ",factibilidad.factigisTipoFactibilidad);
                   //Si la potencia disponible es menor a 0 , pasa a ser FACTIBILIDAD ASISTIDA
                   if(potenciaDisponible < 0){
                     factibilidad.factigisTipoFactibilidad = 'FACTIBILIDAD ASISTIDA';
@@ -718,7 +715,7 @@ function factigis_addNuevaFactibilidad_especial(factibilidad, callbackadd){
                   }
                   factibilidad.factigisTipoMejora = "POR DEFINIR";
 
-                  if ( (factibilidad.factigisTramo!='N/A')  && (factibilidad.factigisDistRotMed<21)  && (factibilidad.factigisPropiedadPoste=='Empresa') ){
+                  if ( (factibilidad.factigisTramo!='N/A')  && (factibilidad.factigisDistRotMed<30)  && (factibilidad.factigisPropiedadPoste=='Empresa') ){
                     console.log(factibilidad.factigisTramo)
                     //agregar a rest srv
                     console.log("Estoy con la siguiente factibilidad en bt (especial)",factibilidad.factigisTipoFactibilidad);

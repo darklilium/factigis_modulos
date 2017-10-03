@@ -1,5 +1,7 @@
+//v0.9
+
 //DEV MODE
-/*
+
 const env = {
   ROOT: "static/css/",
   CSSDIRECTORY: 'static/css/', //using
@@ -11,7 +13,7 @@ const env = {
   BUILDFOR: "INTERNA"
 }
 
-*/
+
 //TEST MODE - INTERNO
 /*
 const env = {
@@ -25,6 +27,7 @@ const env = {
   BUILDFOR: "EXTERNA"
 }
 */
+/*
 //PROD MODE - EXTERNO
 const env = {
   ROOT: "css/",
@@ -37,7 +40,7 @@ const env = {
   BUILDFOR: "INTERNA",
   VERSION: "_V0.8(PROV)"
 }
-
+*/
 
 //prod mode: interno
 /*

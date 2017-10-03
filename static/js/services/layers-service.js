@@ -148,6 +148,10 @@ function myLayers(){
     read_factigis_vialidad(){
         return serviceURL + "PMS/Vialidad/MapServer/0?f=json&token=" + token.read();
     },
+    read_factigis_restringida(){
+        return serviceURL + "Varios/ZONAS_RESTRICCION/MapServer/0?f=json&token=" + token.read();
+    },
+  
     read_factigis2(){
         return serviceURL + "PMS/Vialidad/MapServer?f=json&token=" + token.read();
     },
@@ -224,8 +228,6 @@ function myLayers(){
     read_luminarias(){
       return serviceURL + "AP_Municipal/AP_MUNICIPAL/FeatureServer/1?f=json&token=" + token.read();
     }
-
-
   };
 }
 
@@ -362,10 +364,11 @@ function setLayers(){
       return fDistribucionsLayer;
     },
     factigis_distribucion(whereRegion, layerNumber){
-      var fTransmisionLayer = new esri.layers.ArcGISDynamicMapServiceLayer(myLayers().read_factigis(),{id:"factigis_distribucion",
-      opacity:0.3});
-      fTransmisionLayer.setImageFormat("png32");
-      fTransmisionLayer.setVisibleLayers([1]);
+      var fTransmisionLayer = new esri.layers.FeatureLayer(myLayers().read_factigis_distribucion(),{id:"factigis_distribucion",
+      opacity:0.3
+      });
+      //fTransmisionLayer.setImageFormat("png32");
+      //fTransmisionLayer.setVisibleLayers([1]);
       return fTransmisionLayer;
     },
     factigis_vialidad(whereRegion, layerNumber){

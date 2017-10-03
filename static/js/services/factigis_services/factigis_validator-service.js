@@ -73,7 +73,7 @@ function campamentosZoneValidator(point,callback){
 }
 
 function restriccionZoneValidator(point,callback){
-  var qTaskTransmision = new esri.tasks.QueryTask(layers.read_factigis_distribucion());
+  var qTaskTransmision = new esri.tasks.QueryTask(layers.read_factigis_restringida());
   var qTransmision = new esri.tasks.Query();
   qTransmision.geometry = point;
   qTransmision.spatialRelationship = esri.tasks.Query.SPATIAL_REL_WITHIN;
