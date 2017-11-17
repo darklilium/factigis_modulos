@@ -76,7 +76,7 @@ function getZona(comuna){
   let zona = FactigisZonas().filter(zona =>{
     return zona[0] ==  comuna;
   });
-  //console.log(zona[0][1]);
+  console.log(zona[0][1]);
   return zona[0][1];
 }
 

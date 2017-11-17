@@ -202,7 +202,7 @@ function factigis_findComuna(geometry, callback){
   qInterruptions.spatialRelationship = esri.tasks.Query.SPATIAL_REL_INTERSECTS;
 
   qTaskInterruptions.execute(qInterruptions, (featureSet)=>{
-    console.log(featureSet.features.length);
+    console.log(featureSet.features.length, featureSet, "tengo elementos..");
     if(!featureSet.features.length){
       return callback([]);
     }

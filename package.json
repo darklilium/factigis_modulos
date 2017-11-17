@@ -16,7 +16,7 @@
     "url": ""
   },
   "keywords": [],
-  "author": "Ian Firkin, Evelyn Hernandez",
+  "author": "Evelyn Hernandez",
   "license": "MIT",
   "devDependencies": {
     "babel-loader": "^6.2.5",
@@ -31,6 +31,7 @@
     "gulp-notify": "~2.2.0",
     "gulp-sass": "^2.2.0",
     "gulp-swig": "^0.8.0",
+    "html-webpack-plugin": "^2.30.1",
     "node-sass": "^3.4.2",
     "react": "^0.14.8",
     "react-bootstrap": "~0.30.0",

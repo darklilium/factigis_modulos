@@ -82,10 +82,10 @@ function restriccionZoneValidator(point,callback){
   qTaskTransmision.execute(qTransmision, (featureSet)=>{
     if(featureSet.features.length){
 
-      return callback(true);
+      return callback(false);
     }else{
       console.log("no hay", featureSet.features.length, " restriccion");
-      return callback(false);
+      return callback(true);
     }
 
   }, (Errorq)=>{

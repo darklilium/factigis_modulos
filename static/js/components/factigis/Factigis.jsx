@@ -138,7 +138,7 @@ class Factigis extends React.Component {
                 <Factigis_Add themap={this.state.themap} permissions={this.state.permissions}/>
               </div>
               <div className="wrapper_factibilidadRight">
-                <LayerList show={["check_factigis_transmision", "check_factigis_distribucion", "check_factigis_vialidad", "check_campamentos", "check_chqbasemap",
+                <LayerList show={["check_factigis_transmision", "check_factigis_distribucion", "check_factigis_vialidad", "check_campamentos", "check_factigis_restringida","check_chqbasemap",
                 "check_subestaciones","check_MT","check_BT"]} />
                 <div className="factigis_map_div" id="factigis_map_div">
                   <div id="BasemapToggle" ></div>

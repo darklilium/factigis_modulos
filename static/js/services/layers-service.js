@@ -151,7 +151,7 @@ function myLayers(){
     read_factigis_restringida(){
         return serviceURL + "Varios/ZONAS_RESTRICCION/MapServer/0?f=json&token=" + token.read();
     },
-  
+
     read_factigis2(){
         return serviceURL + "PMS/Vialidad/MapServer?f=json&token=" + token.read();
     },
@@ -370,6 +370,14 @@ function setLayers(){
       //fTransmisionLayer.setImageFormat("png32");
       //fTransmisionLayer.setVisibleLayers([1]);
       return fTransmisionLayer;
+    },
+    factigis_restringida(whereRegion, layerNumber){
+      var fRestringidaLayer = new esri.layers.FeatureLayer(myLayers().read_factigis_restringida(),{id:"factigis_restringida",
+      opacity:0.7
+      });
+      //fTransmisionLayer.setImageFormat("png32");
+      //fTransmisionLayer.setVisibleLayers([1]);
+      return fRestringidaLayer;
     },
     factigis_vialidad(whereRegion, layerNumber){
       var fVialidadsLayer = new esri.layers.ArcGISDynamicMapServiceLayer(myLayers().read_factigis2(),{id:"factigis_vialidad",

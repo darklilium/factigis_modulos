@@ -159,7 +159,7 @@ class LayerList extends React.Component {
         if (this.refs.check_MT.checked){
           mapp.addLayer(addDistribucionLayer,3);
 
-          
+
           return;
         }
 
@@ -176,7 +176,16 @@ class LayerList extends React.Component {
         //mapp.graphics.clear();
         mapp.removeLayer(mapp.getLayer("factigis_BT"));
       break;
+      case "check_factigis_restringida":
+        var addDistribucionLayer = setLayers().factigis_restringida();
+        if (this.refs.check_factigis_restringida.checked){
+          mapp.addLayer(addDistribucionLayer);
+          return;
+        }
 
+        //mapp.graphics.clear();
+        mapp.removeLayer(mapp.getLayer("factigis_restringida"));
+      break;
 
 
 
@@ -247,6 +256,11 @@ class LayerList extends React.Component {
           visibility: 'hidden',
           display: 'none',
           margin: '9px 0 0 0'
+      },
+      check_factigis_restringida:{
+          visibility: 'hidden',
+          display: 'none',
+          margin: '9px 0 0 0'
       }
     };
 
@@ -309,7 +323,10 @@ class LayerList extends React.Component {
           visibilityStyle.check_BT.visibility= 'visible';
           visibilityStyle.check_BT.display= 'flex';
         break;
-
+        case "check_factigis_restringida":
+          visibilityStyle.check_factigis_restringida.visibility= 'visible';
+          visibilityStyle.check_factigis_restringida.display= 'flex';
+        break;
 
 
         default:
@@ -341,6 +358,10 @@ class LayerList extends React.Component {
           <div className="LayerList__checkbox-div">
             <input style={visibilityStyle.check_factigis_transmision} className="LayerList__checkbox" type="checkbox" id="check_factigis_transmision" ref="check_factigis_transmision" onClick={this.onClick} ></input>
             <h6 style={visibilityStyle.check_factigis_transmision} className="LayerList__h6">Transmision</h6>
+          </div>
+          <div className="LayerList__checkbox-div">
+            <input style={visibilityStyle.check_factigis_restringida} className="LayerList__checkbox" type="checkbox" id="check_factigis_restringida" ref="check_factigis_restringida" onClick={this.onClick} ></input>
+            <h6 style={visibilityStyle.check_factigis_restringida} className="LayerList__h6">Restringida</h6>
           </div>
           <div className="LayerList__checkbox-div">
             <input style={visibilityStyle.check_factigis_vialidad} className="LayerList__checkbox" type="checkbox" id="check_factigis_vialidad" ref="check_factigis_vialidad" onClick={this.onClick} ></input>

@@ -478,6 +478,7 @@ class Factigis_Add extends React.Component {
 
           //validar factibilidad.
           var zones = factigis_validator(g.mapPoint, (callbackMain)=>{
+            console.log("zonas:", callbackMain);
             this.setState({
               factCartaComuna: comunaa,
               zonaConcesion: callbackMain.zonaConcesion,
@@ -1014,11 +1015,11 @@ class Factigis_Add extends React.Component {
         if(this.state.zonaConcesion==false){
           factArr.push("concesion");
         }
-        /*
+
         if(this.state.zonaRestringida==false){
           factArr.push("restringida");
         }
-        */
+
         if(this.state.zonaTransmision==false){
           factArr.push("transmision");
         }
@@ -1027,10 +1028,12 @@ class Factigis_Add extends React.Component {
           factArr.push("vialidad");
         }
         */
-
+        console.log("Problemas zonas encontrados:" , factArr);
         //Si no hay problemas de zonas, pasa a factibilidad NORMAL (directa), transitoriamente ya que esto puede cambiar dentro de la función de guardado.
+
         //FACTIBILIDAD NORMAL
         if(!factArr.length){
+
           //primeros campos a definir para agregar (se agregan más luego en la otra función addNuevaFactibilidad)
           var myFact = {
             factigisRut: this.state.factigisRut,
@@ -1177,10 +1180,10 @@ class Factigis_Add extends React.Component {
             }
           //Si dentro del array de zonas hay problemas
 
-          //Si está fuera de la zona concesión
+          //Si está FUERA de la zona concesión ----------------------------------------
           if($.inArray("concesion",factArr)>-1){
 
-            //Si esta dentro de la zona de transmisión = No agregar
+              //Si esta dentro de la zona de transmisión = No agregar
               if($.inArray("transmision",factArr)>-1){
 
                 //no agregar
@@ -1193,16 +1196,10 @@ class Factigis_Add extends React.Component {
                 //$("#iframeloadingAdd").hide();
                 $(".drawer_progressBar").css('visibility','hidden');
                 return;
-            //Si está fuera de la zona de transmisión = Asistida , aunque esté dentro o fuera de campamentos
-              }else{
-                //agregar fact especial = asistida
-                //console.log("agregar como fact asistida debido a q está fuera de zona de concesión y fuera de transmision");
-                /*this.setState({
-                  open: true,
-                  problemsforAdding: 'agregar como fact asistida debido a q está fuera de zona de concesión y fuera de transmision',
-                  btnModalCloseStatus: false
-                });
-                */
+
+              }
+              //Si está fuera de la zona de concesión y fuera o dentro de zona restringida = Asistida y fuera de transmision
+              else{
                 this.setState({
                   open: true,
                   problemsforAdding: 'Procesando factibilidad, espere un momento'
@@ -1247,7 +1244,8 @@ class Factigis_Add extends React.Component {
               }
 
           }
-          //Si está dentro de concesión y también dentro de transmisión = No agregar
+
+          //Si está DENTRO de concesión y también dentro de transmisión = No agregar --------------------------------------------
           if ($.inArray("transmision",factArr)>-1) {
 
               //en zona transmisión
@@ -1264,8 +1262,6 @@ class Factigis_Add extends React.Component {
           //Si está dentro de concesión y también dentro de campamentos = Asistida
           if ($.inArray("campamentos",factArr)>-1) {
                 fArr.push("campamentos");
-                console.log("En zona campamentos");
-
                 this.setState({
                   open: true,
                   problemsforAdding: 'Procesando factibilidad, espere un momento'
@@ -1309,7 +1305,53 @@ class Factigis_Add extends React.Component {
                 return;
           }
 
-          console.log("Problemas de zonas:", fArr);
+          //3.10.2015: agregar capa de zona restringida
+            //En concesión y en zona restringida = Ingresar asistida.
+          if($.inArray("restringida",factArr)>-1){
+            console.log("dentro de concesión pero en zona restringida");
+            this.setState({
+              open: true,
+              problemsforAdding: 'Procesando factibilidad, espere un momento'
+            });
+            console.log(myFact,"tengo lo siguiente  en zona restringida para factibilidad");
+            factigis_addNuevaFactibilidad_especial(myFact, (cb)=>{
+              if(cb[0]){
+                this.setState({
+                open: true,
+                problemsforAdding: 'La factibilidad  ha sido agregada. Tipo: ' + cb[2]['Tipo_factibilidad'] ,
+                numeroFactibilidad: 'N°' + cb[1],
+                btnModalCloseStatus: false
+                });
+
+                //$("#iframeloadingAdd").hide();
+                $(".drawer_progressBar").css('visibility','hidden');
+
+                //GENERAR CARTA: guardar en cookie los parametros con que fue generada la factibilidad para crear la carta.
+                let usrprfl = cookieHandler.get('usrprfl');
+                cookieHandler.set('myLetter',[this.state.factigisDireccion + ", " + this.state.factCartaComuna ,
+                  this.state.factigisNombre + " " + this.state.factigisApellido,
+                  usrprfl.NOMBRE_COMPLETO,
+                  cb[1],
+                  usrprfl.CARGO,
+                  usrprfl.LUGAR_DE_TRABAJO,
+                  usrprfl.DEPARTAMENTO,
+                  usrprfl.COMUNA]);
+
+                  window.open("factigisCarta.html");
+                  //si no fue grabado mostrar que hubo problemas en modal
+              }else{
+                this.setState({
+                  open: true,
+                  problemsforAdding: cb[1],  numeroFactibilidad: '',
+                  btnModalCloseStatus: false
+                });
+                //$("#iframeloadingAdd").hide();
+                $(".drawer_progressBar").css('visibility','hidden');
+              }
+            });
+            return;
+          }
+          console.log("Problemas de zonas:", factArr);
         }
 
 
