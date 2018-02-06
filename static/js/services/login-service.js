@@ -73,7 +73,9 @@ function getUserPermission(user, token, callback){
             "insert": permission.attributes['insert_'],
             "update": permission.attributes['update_'],
             "delete": permission.attributes['delete_'],
-            "platform": permission.attributes['plataforma']
+            "platform": permission.attributes['plataforma'],
+            //2.1.2018: agregando multiempresa
+            "empresa": permission.attributes['empresa']
           };
           return per;
         });

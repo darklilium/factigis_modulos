@@ -1,7 +1,11 @@
 import cookieHandler from 'cookie-handler';
 import mymap from '../../services/map-service';
 import layers from '../../services/layers-service';
+//1/2/2018: Agregando moment para hacer respuestas solo mayores a 6 meses de antigüedad.
+import moment from 'moment';
+var before_sixMonths = moment().subtract(6,'months').calendar();
 
+console.log(before_sixMonths,"tengo hace 6 meses" , typeof before_sixMonths);
 function loadFactStates(folio , callback){
   //console.log('cargando estados.');
 
@@ -32,7 +36,7 @@ function loadCurrentHistoryData(callback){
 
   var qTaskFact = new esri.tasks.QueryTask(layers.read_agregarFactibilidad());
   var qFact = new esri.tasks.Query();
-  qFact.where = "Estado_tramite='CERRADA'";
+  qFact.where = "Estado_tramite='CERRADA'" ;
   qFact.returnGeometry = true;
   qFact.outFields = ["*"];
   qTaskFact.execute(qFact, (featureSet)=>{

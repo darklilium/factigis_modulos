@@ -198,7 +198,10 @@ class Factigis_Add extends React.Component {
       btnDireccionDisabled: true,
       btnPosteDisabled: true,
       btnTramoDisabled: true,
-      factigis_selectedValueTipoPotencia: 0
+      factigis_selectedValueTipoPotencia: 0,
+
+      //2.1.2018: agregando multimempresa
+      factigis_empresa: ''
 
 
     }
@@ -222,6 +225,7 @@ class Factigis_Add extends React.Component {
   }
 
   componentDidMount(){
+    //console.log(cookieHandler.get('usrprmssns'), "Permisos")
     /*
     var d = cookieHandler.get('wllExp');
       if(d > getFormatedDate()){
@@ -255,6 +259,15 @@ class Factigis_Add extends React.Component {
     if(showC.length){
         this.setState({showC: true});
     }
+
+    var x = cookieHandler.get('usrprmssns').map(p=>{
+      return p.empresa;
+    });
+
+
+    let unique = [...new Set(x)];
+    console.log(unique);
+
   }
 
   handleSelect(index, last){
@@ -590,7 +603,7 @@ class Factigis_Add extends React.Component {
             console.log("propiedad poste:", featureSetFeatures[0].attributes['propiedad']);
             //verificar si el rotulo es particular/otro u empresa: si es empresa, la factibilidad es normal, si es particular/otro, es asistida.
             if((featureSetFeatures[0].attributes['propiedad']=="Particular") || (featureSetFeatures[0].attributes['propiedad']=="Empresa que no presta Servicio Distribucion") ){
-              ////console.log("poste es ",featureSetFeatures[0].attributes['propiedad'], featureSetFeatures);
+              console.log("poste es ",featureSetFeatures[0].attributes['propiedad'], featureSetFeatures);
               this.setState({factiTipoFactibilidad: 'FACTIBILIDAD ASISTIDA'});
             }else{
               ////console.log("poste es empresa" ,featureSetFeatures[0].attributes['propiedad'], featureSetFeatures);
@@ -683,7 +696,7 @@ class Factigis_Add extends React.Component {
 
           }else{
             factigis_findTramo(g.mapPoint, this.state.factigis_selectedValueTipoEmpalmeBTMT, (featureSetFeatures)=>{
-
+            //  console.log(this.state.factiTipoFactibilidad,"tengo hasta ahora esto!!");
               if(featureSetFeatures.tipoFactibilidad=='FACTIBILIDAD ASISTIDA'){
                 this.setState({
                   factigisTramoValidator: true,
@@ -695,9 +708,13 @@ class Factigis_Add extends React.Component {
                 this.setState({
                   factigisTramoValidator: true,
                   factigisTramo: featureSetFeatures.descripcion,
-                  btnDireccionDisabled: false,
+                  btnDireccionDisabled: false
+                  /*,
                   factiTipoFactibilidad: featureSetFeatures.tipoFactibilidad
+                  */
+
                 });
+                //  console.log(this.state.factiTipoFactibilidad,"me quede con ...");
               }
               //$("#iframeloadingAdd").hide();
               $(".drawer_progressBar").css('visibility','hidden');
@@ -1030,7 +1047,10 @@ class Factigis_Add extends React.Component {
         */
         console.log("Problemas zonas encontrados:" , factArr);
         //Si no hay problemas de zonas, pasa a factibilidad NORMAL (directa), transitoriamente ya que esto puede cambiar dentro de la función de guardado.
+        //6/2/2018:
+        console.log(this.state.factiTipoFactibilidad,"tengo esta factibilidad.");
 
+      
         //FACTIBILIDAD NORMAL
         if(!factArr.length){
 

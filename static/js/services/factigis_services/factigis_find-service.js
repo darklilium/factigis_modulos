@@ -119,7 +119,7 @@ function factigis_findTramo(geometry, tramo, callback){
         let redBT = [];
         redBT.descripcion = bt[0].attributes['descripcion'];
         redBT.tension = 'N/A';
-        redBT.tipoFactibilidad = 'FACTIBILIDAD DIRECTA';
+        redBT.tipoFactibilidad = '';
         return callback(redBT);
       }
     });

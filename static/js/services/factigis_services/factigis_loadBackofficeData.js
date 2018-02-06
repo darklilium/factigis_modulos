@@ -5,7 +5,7 @@ import token from '../../services/token-service';
 
 function loadCurrentUserData(callback){
   let usrprfl = cookieHandler.get('usrprfl');
-  //console.log(usrprfl);
+  console.log(usrprfl,"user profile");
   var qTaskFact = new esri.tasks.QueryTask(layers.read_agregarFactibilidad());
   var qFact = new esri.tasks.Query();
   qFact.where = "Zona= '" + usrprfl.ZONA_USUARIO + "' AND Tipo_factibilidad = 'FACTIBILIDAD ASISTIDA' AND Estado_tramite <> 'CERRADA'";
@@ -52,7 +52,7 @@ function find_folioData(folio, callback){
 }
 
 function updateAttributesPerFolio(d,callback){
-  
+
   const data = {
     f: 'json',
     updates: JSON.stringify([{ attributes: d}]),
