@@ -10,9 +10,9 @@ function myLayers(){
   var serviceMain , serviceURL;
 
   if(env.BUILDFOR=="INTERNA"){
-    serviceMain = 'http://gisred.chilquinta/arcgis/';
+    serviceMain = env.SSL+'gisred.chilquinta/arcgis/';
   }else{
-    serviceMain = 'http://gisred.chilquinta.cl:5555/arcgis/';
+    serviceMain = env.SSL+'gisred.chilquinta.cl:5555/arcgis/';
   }
    serviceURL = serviceMain + 'rest/services/';
 
