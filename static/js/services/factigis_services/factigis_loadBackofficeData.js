@@ -4,11 +4,11 @@ import layers from '../../services/layers-service';
 import token from '../../services/token-service';
 
 function loadCurrentUserData(callback){
+  //13.3.2018: filtro por empresa agregado
   let usrprfl = cookieHandler.get('usrprfl');
-  console.log(usrprfl,"user profile");
   var qTaskFact = new esri.tasks.QueryTask(layers.read_agregarFactibilidad());
   var qFact = new esri.tasks.Query();
-  qFact.where = "Zona= '" + usrprfl.ZONA_USUARIO + "' AND Tipo_factibilidad = 'FACTIBILIDAD ASISTIDA' AND Estado_tramite <> 'CERRADA'";
+  qFact.where = "Zona= '" + usrprfl.ZONA_USUARIO + "' AND Tipo_factibilidad = 'FACTIBILIDAD ASISTIDA' AND Estado_tramite <> 'CERRADA' AND EMPRESA='" + usrprfl.EMPRESA+ "'";
   qFact.returnGeometry = true;
   qFact.outFields = ["*"];
   qTaskFact.execute(qFact, (featureSet)=>{

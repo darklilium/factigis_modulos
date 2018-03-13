@@ -298,6 +298,7 @@ class FactigisBackOfficeH extends React.Component {
         window.location.href = "index.html";
       }*/
 
+      var usrprfl = cookieHandler.get('usrprfl');
     //ADD LAYER TO SHOW IN THE MAP
     $("#iframeloadingBO1").show();
       var mapp = mymap.createMap("factigis_bo2_map","topo",-71.2905 ,-33.1009,9);
@@ -305,7 +306,7 @@ class FactigisBackOfficeH extends React.Component {
       layerFactibilidad.setImageFormat("png32");
       layerFactibilidad.setVisibleLayers([0]);
       var layerDefs = [];
-      layerDefs[0] = "Estado_tramite = 'CERRADA'";
+      layerDefs[0] = "Estado_tramite = 'CERRADA' AND Empresa='"+ usrprfl.EMPRESA + "'";
       layerFactibilidad.setLayerDefinitions(layerDefs);
       /*layerFactibilidad.setInfoTemplates({
         0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
@@ -611,6 +612,13 @@ class FactigisBackOfficeH extends React.Component {
             </div>
           </AppBar>
         </Panel>
+        {/*Agregado panel de filtro de busqueda*/}
+        <div className="bo2_table">
+          <div>
+            <h1 className="factigisBO2_h1">Filtro de Búsqueda: <b className="factigis_bo2-b"></b></h1>
+          </div>
+
+        </div>
 
         <div className="bo2_table">
           <FG_GridPerZoneH2 title={"Factibilidades"} data={this.state.myData}  callbackParent={this.onChildChanged.bind(this)}/>

@@ -344,7 +344,7 @@ class FactigisBackOffice extends React.Component {
       layerFactibilidad.setImageFormat("png32");
       layerFactibilidad.setVisibleLayers([0]);
       var layerDefs = [];
-      layerDefs[0] = "Zona ='"+ prfl.ZONA_USUARIO + "' AND tipo_mejora <> 'FACTIBILIDAD DIRECTA' AND Estado_tramite <> 'CERRADA'";
+      layerDefs[0] = "Zona ='"+ prfl.ZONA_USUARIO + "' AND tipo_mejora <> 'FACTIBILIDAD DIRECTA' AND Estado_tramite <> 'CERRADA' AND EMPRESA='"+ prfl.EMPRESA + "'";
       layerFactibilidad.setLayerDefinitions(layerDefs);
       /*layerFactibilidad.setInfoTemplates({
         0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}

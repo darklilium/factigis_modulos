@@ -426,7 +426,8 @@ function agregarFact(f, callback){
     Sed :f.factigisSed,
     PotenciaDispSed :f.factigisPotenciaDisponibleSED,
     Clasificacion: f.factigisClasificacion,
-    Poste_cnx_final : posteFactibilizador
+    Poste_cnx_final : posteFactibilizador,
+    empresa: f.factigisEmpresa
 
   }
 
@@ -558,7 +559,8 @@ function agregarFactEspecial(f, callback){
     Sed :f.factigisSed,
     PotenciaDispSed :f.factigisPotenciaDisponibleSED,
     Clasificacion: f.factigisClasificacion,
-    Poste_cnx_final : posteFactibilizador
+    Poste_cnx_final : posteFactibilizador,
+    empresa: f.factigisEmpresa
 
   }
 

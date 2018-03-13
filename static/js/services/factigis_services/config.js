@@ -1,7 +1,7 @@
 //v0.9
 
 //DEV MODE
-/*
+
 const env = {
   ROOT: "static/css/",
   CSSDIRECTORY: 'static/css/', //using
@@ -13,7 +13,7 @@ const env = {
   BUILDFOR: "INTERNA",
   SSL: 'http://'
 }
-*/
+
 
 //TEST MODE - INTERNO
 /*
@@ -46,7 +46,7 @@ const env = {
 
 //prod mode: interno : para app interna.
 
-
+/*
 const env = {
   ROOT: "css/",
   CSSDIRECTORY: 'css/',
@@ -57,6 +57,6 @@ const env = {
   SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_PROD',
   SSL: 'http://'
 }
-
+*/
 
 export default env;

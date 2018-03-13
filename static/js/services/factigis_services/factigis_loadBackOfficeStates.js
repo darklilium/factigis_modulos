@@ -36,7 +36,7 @@ function loadCurrentHistoryData(callback){
 
   var qTaskFact = new esri.tasks.QueryTask(layers.read_agregarFactibilidad());
   var qFact = new esri.tasks.Query();
-  qFact.where = "Estado_tramite='CERRADA'" ;
+  qFact.where = "Estado_tramite='CERRADA' AND EMPRESA = '"+ usrprfl.EMPRESA+ "'" ;
   qFact.returnGeometry = true;
   qFact.outFields = ["*"];
   qTaskFact.execute(qFact, (featureSet)=>{

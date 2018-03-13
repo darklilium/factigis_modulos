@@ -267,6 +267,7 @@ class Factigis_Add extends React.Component {
 
     let unique = [...new Set(x)];
     console.log(unique);
+    this.setState({factigis_empresa: unique});
 
   }
 
@@ -1050,7 +1051,7 @@ class Factigis_Add extends React.Component {
         //6/2/2018:
         console.log(this.state.factiTipoFactibilidad,"tengo esta factibilidad.");
 
-      
+
         //FACTIBILIDAD NORMAL
         if(!factArr.length){
 
@@ -1087,7 +1088,8 @@ class Factigis_Add extends React.Component {
             factigisIDNodo: this.state.factigisIDNodo,
             factigisComuna: this.state.factigisComuna,
             factigisZona: this.state.factigisZona,
-            factigisClasificacion: this.state.factigisClasificacion
+            factigisClasificacion: this.state.factigisClasificacion,
+            factigisEmpresa: this.state.factigis_empresa
             }
             //se pasan los primeros campos para agregar
             this.setState({
@@ -1196,7 +1198,8 @@ class Factigis_Add extends React.Component {
             factigisComuna: this.state.factigisComuna,
             factigisZona: this.state.factigisZona,
             factigisClasificacion: this.state.factigisClasificacion,
-            factigisPropiedadPoste: this.state.factigisPropiedadPoste
+            factigisPropiedadPoste: this.state.factigisPropiedadPoste,
+            factigisEmpresa: this.state.factigis_empresa
             }
           //Si dentro del array de zonas hay problemas
 
