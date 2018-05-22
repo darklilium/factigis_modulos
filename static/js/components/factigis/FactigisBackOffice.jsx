@@ -112,6 +112,21 @@ var tiposFase = [
   { value: 'ABC', label: 'ABC' }
 ];
 
+//22.5.2018:
+//Logica de estados
+var tipoEstadoCerrada = [
+  { value: 'CONEXION DIRECTA', label: 'CONEXION DIRECTA' },
+  { value: 'RECHAZADA', label: 'RECHAZADA'}
+]
+
+var tipoEstadoEnTramite = [
+  { value: 'SGO', label: 'SGO' },
+  { value: 'V&S', label: 'V&S' }
+]
+
+var tipoEstadoNueva = [
+  { value: 'POR DEFINIR', label: 'POR DEFINIR' }
+]
 
 class FactigisBackOffice extends React.Component {
 
@@ -123,7 +138,7 @@ class FactigisBackOffice extends React.Component {
       modalStatus: '',
       zonaTitle: '',
       opcionesEstado: tipoEstado,
-      opcionesMejora: tipoMejora,
+      opcionesMejora: [],
       cbEstadoValue: '',
       cbMejoraValue: '',
       loadData: [],
@@ -295,11 +310,9 @@ class FactigisBackOffice extends React.Component {
       btnGuardarState: false,
       factB_fechaCreacion: newState[0]['Fecha Creacion'],
       factB_comuna: newState[0]['Comuna']
-
-
     });
 
-    //query for getting the SED name and kva.
+     //query for getting the SED name and kva.
      //if 0 = 'NO NAME AVAILABLE' and no kva available
      factigis_findSedProperties(newState[0]['Sed'],(sedprops)=>{
 
@@ -320,6 +333,21 @@ class FactigisBackOffice extends React.Component {
      });
 
     $("#iframeloadingBO").hide();
+
+    //22.5.2018: Respecto al tipo mejora que se seleccionaría
+    switch (newState[0]['Estado Tramite']) {
+      case 'NUEVA':
+        this.setState({opcionesMejora: tipoEstadoNueva});
+      break;
+
+      case 'EN TRAMITE':
+        this.setState({opcionesMejora: tipoEstadoEnTramite});
+      break;
+
+      case 'CERRADA':
+        this.setState({opcionesMejora: tipoEstadoCerrada});
+      break;
+    }
   }
 
   componentWillMount(){
@@ -408,7 +436,25 @@ class FactigisBackOffice extends React.Component {
   }
 
 
-  onChange(e){console.log("h1",e); this.setState({cbEstadoValue: e});}
+  onChange(e){
+    console.log("h1",e);
+    switch (e) {
+      case 'NUEVA':
+        this.setState({opcionesMejora: tipoEstadoNueva});
+      break;
+
+      case 'EN TRAMITE':
+        this.setState({opcionesMejora: tipoEstadoEnTramite});
+      break;
+
+      case 'CERRADA':
+        this.setState({opcionesMejora: tipoEstadoCerrada});
+      break;
+    }
+
+    this.setState({cbEstadoValue: e});
+
+  }
 
   onChange2(e){console.log("h2",e);this.setState({cbMejoraValue: e});}
 
@@ -501,7 +547,7 @@ class FactigisBackOffice extends React.Component {
 
     zonaTitle: '',
     opcionesEstado: tipoEstado,
-    opcionesMejora: tipoMejora,
+    opcionesMejora: [],
     cbEstadoValue: '',
     cbMejoraValue: '',
     loadData: [],
