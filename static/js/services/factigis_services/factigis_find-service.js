@@ -1,5 +1,6 @@
 import layers from '../../services/layers-service';
 import token from '../../services/token-service';
+import cookieHandler from 'cookie-handler';
 
 function crearRectangulo(geometry,delta){
   var rectangulo = new esri.geometry.Polygon(new esri.SpatialReference(geometry.spatialReference));
@@ -55,6 +56,7 @@ function factigis_findRotulo(geometry,callback){
 
 function factigis_findTramoBT(geometry, callback){
   console.log("buscando en bt");
+
   var myRectangulo = crearRectangulo(geometry,1);
   var qTaskInterruptions = new esri.tasks.QueryTask(layers.read_chqTramosBT());
   var qInterruptions = new esri.tasks.Query();
@@ -79,6 +81,7 @@ function factigis_findTramoBT(geometry, callback){
 
 function factigis_findTramoMT(geometry,callback){
   console.log("buscando en mt");
+
   var myRectangulo = crearRectangulo(geometry,1);
   var qTaskInterruptions = new esri.tasks.QueryTask(layers.read_chqTramosMT());
   var qInterruptions = new esri.tasks.Query();
@@ -137,8 +140,36 @@ function factigis_findTramo(geometry, tramo, callback){
       }else{
         console.log("esto encontre en mt", mt);
         let redMT = [];
-        redMT.descripcion = mt[0].attributes['ARCGIS.DBO.Tramos_MT_006.descripcion'];
-        redMT.tension = mt[0].attributes['ARCGIS.DBO.Cabeceras_006.tension'];
+
+        var empresa = cookieHandler.get('usrprfl').EMPRESA;
+
+        switch (empresa) {
+          case 'chilquinta':
+            redMT.descripcion = mt[0].attributes['ARCGIS.DBO.Tramos_MT_006.descripcion'];
+            redMT.tension = mt[0].attributes['ARCGIS.DBO.Cabeceras_006.tension'];
+          break;
+
+          case 'linares':
+            redMT.descripcion = mt[0].attributes['ARCGIS.DBO.Tramos_MT_031.descripcion'];
+            redMT.tension = mt[0].attributes['ARCGIS.DBO.Cabeceras_031.tension'];
+          break;
+          case 'parral':
+            redMT.descripcion = mt[0].attributes['ARCGIS.DBO.Tramos_MT_032.descripcion'];
+            redMT.tension = mt[0].attributes['ARCGIS.DBO.Cabeceras_032.tension'];
+          break;
+          case 'casablanca':
+            redMT.descripcion = mt[0].attributes['ARCGIS.DBO.Tramos_MT_028.descripcion'];
+            redMT.tension = mt[0].attributes['ARCGIS.DBO.Cabeceras_028.tension'];
+          break;
+          case 'litoral':
+            redMT.descripcion = mt[0].attributes['ARCGIS.DBO.Tramos_MT_009.descripcion'];
+            redMT.tension = mt[0].attributes['ARCGIS.DBO.Cabeceras_009.tension'];
+          break;
+
+          default:
+
+        }
+
         redMT.tipoFactibilidad = 'FACTIBILIDAD DIRECTA';
         return callback(redMT);
       }

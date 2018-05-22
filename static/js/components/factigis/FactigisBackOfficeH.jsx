@@ -24,7 +24,16 @@ import { AppBar, Checkbox, IconButton } from 'react-toolbox';
 import { Layout, NavDrawer, Panel, Sidebar } from 'react-toolbox';
 import env from '../../services/factigis_services/config';
 import {Button} from 'react-toolbox/lib/button';
-
+//13.3.2018
+import {formatDates} from  '../../utils/milliSecondsToDate';
+import moment from 'moment';
+import DayPickerInput from 'react-day-picker/DayPickerInput'
+import 'react-day-picker/lib/style.css';
+import MomentLocaleUtils, {
+  formatDate,
+  parseDate,
+} from 'react-day-picker/moment';
+import 'moment/locale/es';
 
 function createDataObject(){
   return {
@@ -175,9 +184,12 @@ class FactigisBackOfficeH extends React.Component {
       btnGuardarState3: true,
       fases: [],
       selectedRowId: ''
+
     }
     this.loadDataa = this.loadDataa.bind(this);
     this.clearFieldsAttr = this.clearFieldsAttr.bind(this);
+    this.handleDayChangeStart = this.handleDayChangeStart.bind(this);
+    this.handleDayChangeEnd = this.handleDayChangeEnd.bind(this);
   }
 
   onChildChanged(newState){
@@ -285,6 +297,7 @@ class FactigisBackOfficeH extends React.Component {
   }
 
   componentDidMount(){
+      const user = cookieHandler.get('usrprfl')
     /*
     var d = cookieHandler.get('wllExp');
       if(d > getFormatedDate()){
@@ -337,7 +350,7 @@ class FactigisBackOfficeH extends React.Component {
       mapp.addLayer(layerRotulos);
 
       //LOAD FACTIBILIDAD FOR CURRENT USER : RULES: PER HIS/HER ZONE and <> of FACTIBILIDAD DIRECTA
-      this.loadDataa();
+
 
       var toggle = new BasemapToggle({
         map: mapp,
@@ -348,7 +361,7 @@ class FactigisBackOfficeH extends React.Component {
       const page = env.SAVEAPPLICATIONNAME;
       const module = "FACTIGIS_REVISAR_HISTORIAL_FACTIBILIDAD";
       const date = getFormatedDate();
-      const user = cookieHandler.get('usrprfl')
+
       const myToken = cookieHandler.get('tkn');
 
       //console.log(user['USUARIO']);
@@ -358,8 +371,8 @@ class FactigisBackOfficeH extends React.Component {
 
   }
 
-  loadDataa(){
-    loadCurrentHistoryData(data=>{
+  loadDataa(dateRange){
+    loadCurrentHistoryData(dateRange, (data)=>{
       let loadData = data.map(result=>{
 
         let theData = {
@@ -549,7 +562,14 @@ class FactigisBackOfficeH extends React.Component {
       $('.fact_bo_poste').css('color',"black").css('border-color','black');
       this.clearFieldsAttr();
       //LOAD FACTIBILIDAD FOR CURRENT USER : RULES: PER HIS/HER ZONE and <> of FACTIBILIDAD DIRECTA
-      this.loadDataa();
+      const {selectedDayStart, selectedDayEnd} = this.state;
+      console.log(selectedDayStart, selectedDayEnd);
+      //asumir mismo día
+      if(selectedDayStart == selectedDayEnd){
+        this.loadDataa("AND created_date >= '"+ selectedDayStart + " 00:00:00' AND created_date <= '" + selectedDayEnd +" 23:59:59'")
+      }else{
+        this.loadDataa("AND created_date >= '"+ selectedDayStart +" 00:00:00' AND created_date <='" + selectedDayEnd + " 23:59:59'");
+      }
 
     });
 
@@ -572,6 +592,26 @@ class FactigisBackOfficeH extends React.Component {
       window.location.href = e;
   }
 
+  handleDayChangeStart(day) {
+
+    this.setState({ selectedDayStart: formatDates(day) });
+  }
+
+  handleDayChangeEnd(day) {
+
+    this.setState({ selectedDayEnd: formatDates(day) });
+  }
+
+  FiltrarFactibilidades(){
+    const {selectedDayStart, selectedDayEnd} = this.state;
+    console.log(selectedDayStart, selectedDayEnd);
+    //asumir mismo día
+    if(selectedDayStart == selectedDayEnd){
+      this.loadDataa("AND created_date >= '"+ selectedDayStart + " 00:00:00' AND created_date <= '" + selectedDayEnd +" 23:59:59'")
+    }else{
+      this.loadDataa("AND created_date >= '"+ selectedDayStart +" 00:00:00' AND created_date <='" + selectedDayEnd + " 23:59:59'");
+    }
+  }
   render(){
     if(!cookieHandler.get('usrprmssns') || (!cookieHandler.get('usrprfl'))){
       window.location.href = "index.html";
@@ -579,7 +619,8 @@ class FactigisBackOfficeH extends React.Component {
     }
 
     let prof = cookieHandler.get('usrprfl');
-    prof = prof.NOMBRE_COMPLETO.split(" ");
+    console.log(prof);
+    let name = prof.NOMBRE_COMPLETO.split(" ");
 
     let permissions = cookieHandler.get('usrprmssns');
 
@@ -606,7 +647,7 @@ class FactigisBackOfficeH extends React.Component {
                 </div>
               </div>
               <div className="welcome_logout_wrapper">
-                <h6>Bienvenido:  {prof[0]}</h6>
+                <h6>Bienvenido:  {name[0]} / Empresa: {prof.EMPRESA}</h6>
                 <IconButton icon='settings_power' inverse={ true } onClick={this.onLoggOff.bind(this)}/>
               </div>
             </div>
@@ -617,6 +658,36 @@ class FactigisBackOfficeH extends React.Component {
           <div>
             <h1 className="factigisBO2_h1">Filtro de Búsqueda: <b className="factigis_bo2-b"></b></h1>
           </div>
+          <div className="factigisBO2_filtro_wrapper">
+            <h4 className="h4_filter_titles">Desde: </h4>
+            <DayPickerInput
+              onDayChange = {this.handleDayChangeStart.bind(this)}
+              formatDate={formatDate}
+              parseDate={parseDate}
+              format="L"
+              placeholder={`${formatDate(new Date(), 'LL', 'es')}`}
+                     dayPickerProps={{
+                       locale: 'es',
+                       localeUtils: MomentLocaleUtils,
+                     }}
+            />
+            <h4 className="h4_filter_titles padding_left_elm">Hasta: </h4>
+            <DayPickerInput
+                id="dpEnd"
+               onDayChange = {this.handleDayChangeEnd.bind(this)}
+               formatDate={formatDate}
+               parseDate={parseDate}
+               format="L"
+               placeholder={`${formatDate(new Date(), 'LL', 'es')}`}
+                      dayPickerProps={{
+                        locale: 'es',
+                        localeUtils: MomentLocaleUtils,
+                      }}
+
+            />
+              <button className="factigis_submitButton btn btn-info margin_left_elm" onClick={this.FiltrarFactibilidades.bind(this)}>Filtrar Búsqueda</button>
+          </div>
+
 
         </div>
 

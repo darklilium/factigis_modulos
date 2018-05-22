@@ -66,7 +66,21 @@ function FactigisZonas(){
     ["PAPUDO", "ACONCAGUA"],
     ["PETORCA","ACONCAGUA"],
     ["ZAPALLAR","ACONCAGUA"],
-    ["PUTAENDO", "ACONCAGUA"]
+    ["PUTAENDO", "ACONCAGUA"],
+    //comunas linares, parral
+    ['LINARES', "FILIALES SUR"],
+    ['SAN JAVIER', "FILIALES SUR"],
+    ['PARRAL', "FILIALES SUR"],
+    ['VILLA ALEGRE', "FILIALES SUR"],
+    ['LONGAVI', "FILIALES SUR"],
+    ['COLBUN', "FILIALES SUR"],
+    ['RETIRO', "FILIALES SUR"],
+    ['CONSTITUCIÓN', "FILIALES SUR"],
+    ['ÑIQUEN', "FILIALES SUR"],
+    ['CAUQUÉNES', "FILIALES SUR"],
+    ['YERBAS BUENAS', "FILIALES SUR"],
+    ['SAN CARLOS', "FILIALES SUR"]
+
   ];
 
 }

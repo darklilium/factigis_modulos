@@ -31,12 +31,12 @@ function loadFactStates(folio , callback){
 }
 
 
-function loadCurrentHistoryData(callback){
+function loadCurrentHistoryData(dateRange, callback){
   let usrprfl = cookieHandler.get('usrprfl');
-
+  console.log("Estado_tramite='CERRADA' AND EMPRESA = '"+ usrprfl.EMPRESA+ "' " + dateRange);
   var qTaskFact = new esri.tasks.QueryTask(layers.read_agregarFactibilidad());
   var qFact = new esri.tasks.Query();
-  qFact.where = "Estado_tramite='CERRADA' AND EMPRESA = '"+ usrprfl.EMPRESA+ "'" ;
+  qFact.where = "Estado_tramite='CERRADA' AND EMPRESA = '"+ usrprfl.EMPRESA+ "' " + dateRange;
   qFact.returnGeometry = true;
   qFact.outFields = ["*"];
   qTaskFact.execute(qFact, (featureSet)=>{

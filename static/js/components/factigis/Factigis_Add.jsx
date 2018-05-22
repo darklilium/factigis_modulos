@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactTabs from 'react-tabs';
@@ -260,15 +261,18 @@ class Factigis_Add extends React.Component {
         this.setState({showC: true});
     }
 
+    /*
     var x = cookieHandler.get('usrprmssns').map(p=>{
       return p.empresa;
     });
 
-
+    /*
     let unique = [...new Set(x)];
     console.log(unique);
     this.setState({factigis_empresa: unique});
-
+    */
+    var emp = cookieHandler.get('usrprfl');
+    this.setState({factigis_empresa: emp.EMPRESA})
   }
 
   handleSelect(index, last){
@@ -617,7 +621,9 @@ class Factigis_Add extends React.Component {
             line.addPath([this.state.factigis_geoCliente, featureSetFeatures[0].geometry]);
             let lineSymbol = makeSymbol.makeTrackLine();
             map.graphics.add(new esri.Graphic(line,lineSymbol));
-
+            //10.5.2018: agregar validacion para dejar asistidos los empalmes que intersecten linea de
+            this.setState({factigis_lineaCP: line});
+            console.log(this.state.factigis_lineaCP,"linea cp");
             //extrae datos de rotulo
             let rotulo = featureSetFeatures[0].attributes['rotulo'];
             console.log("extraer rotulo",featureSetFeatures);

@@ -1,7 +1,7 @@
 
 import layers from '../../services/layers-service';
 import token from '../../services/token-service';
-
+import cookieHandler from 'cookie-handler';
 //extrae nombre y kva de sed
 function factigis_findSedProperties(sed, callback){
 

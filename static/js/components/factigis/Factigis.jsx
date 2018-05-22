@@ -43,7 +43,8 @@ class Factigis extends React.Component {
     this.setState({permissions: widgetPermissions});
   }
   componentDidMount(){
-
+    const user = cookieHandler.get('usrprfl')
+    console.log(user,"didmount factigis", user.EMPRESA);
     var mapp = mymap.createMap("factigis_map_div","topo",-71.2905 ,-33.1009,9);
     this.setState({themap: mapp});
 
@@ -83,7 +84,7 @@ class Factigis extends React.Component {
     const page = env.SAVEAPPLICATIONNAME;
     const module = "FACTIGIS_CREAR_FACTIBILIDAD";
     const date = getFormatedDate();
-    const user = cookieHandler.get('usrprfl')
+
     const myToken = cookieHandler.get('tkn');
 
     //console.log(user['USUARIO']);

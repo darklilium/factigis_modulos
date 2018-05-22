@@ -1,5 +1,6 @@
 import layers from '../../services/layers-service';
 import token from '../../services/token-service';
+import cookieHandler from 'cookie-handler';
 
 function factigis_validator(point, callbackMain){
   //console.log("my point to validate", point);

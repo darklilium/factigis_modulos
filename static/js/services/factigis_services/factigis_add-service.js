@@ -250,7 +250,6 @@ function factigis_addNuevaFactibilidad(factibilidad, callbackadd){
         //  1.-   trifásicos (no importa si es bt o mt) y > a 18KW  -> Asistida.
 
          if( (factibilidad.factigisPotencia > 4 ) && (factibilidad.factigisFase=='TRIFASICO')){
-
            factibilidad.factigisTipoFactibilidad = "FACTIBILIDAD ASISTIDA";
          }
          //26/10/2016 REQ 5: si el tiempo empalme es provisorio y la fase es trifásica => FACTIBILIDAD ASISTIDA.
@@ -609,11 +608,33 @@ function agregarFactEspecial(f, callback){
 
 
 function buscarCantClienteSED(sed, callback){
+  var empresa_ = cookieHandler.get('usrprfl').EMPRESA;
+  var e = '006';
+
+  switch (empresa_) {
+    case 'chilquinta':
+      e = '006'
+    break;
+    case 'litoral':
+      e = '009'
+    break;
+    case 'linares':
+      e = '031'
+    break;
+    case 'parral':
+      e = '032'
+    break;
+    case 'casablanca':
+      e = '028'
+    break;
+
+  }
   console.log("hola", sed)
+
   var qTaskCC = new esri.tasks.QueryTask(layers.read_layer_nisInfo());
   var qCC = new esri.tasks.Query();
 
-  qCC.where = "ARCGIS.dbo.CLIENTES_DATA_DATOS_006.resp_id_sed='"+ sed + "'";
+  qCC.where = `ARCGIS.dbo.CLIENTES_DATA_DATOS_${e}.resp_id_sed='${sed}'`;
   qTaskCC.executeForCount(qCC, (featureSet)=>{
     return callback(featureSet);
 
@@ -624,6 +645,8 @@ function buscarCantClienteSED(sed, callback){
 }
 
 function buscarKVASED(sed, callback){
+
+
   var qTaskva = new esri.tasks.QueryTask(layers.read_layer_infoSED());
   var qkva = new esri.tasks.Query();
   qkva.returnGeometry = false;

@@ -11,7 +11,9 @@ class FactigisCarta extends React.Component {
 
     this.state = {
       open : false,
-      myElements: []
+      myElements: [],
+      myCompany: '',
+      empresaLogo: ''
     }
 
   }
@@ -29,8 +31,12 @@ class FactigisCarta extends React.Component {
       window.location.href = "index.html";
       return;
     }
+
+    //18.4.2018:
+    var emp = cookieHandler.get('usrprfl').EMPRESA;
+    console.log(emp, "empresa logo");
     //else , charge the modules that the user has permissions
-    this.setState({myElements: cookieHandler.get('myLetter') });
+    this.setState({myElements: cookieHandler.get('myLetter'), myCompany: emp });
 
   }
 
@@ -53,7 +59,7 @@ class FactigisCarta extends React.Component {
 
 
     //dev
-    let image = env.CSSDIRECTORY+"images/factigis_images/logo_chq400.png";
+    let image = `${env.CSSDIRECTORY}images/factigis_images/logo_${this.state.myCompany}400.png`;
     //prod
     //let image = "css/images/factigis_images/logo_chq400.png";
 
@@ -63,7 +69,7 @@ class FactigisCarta extends React.Component {
       <h4 className="factigisCarta_h4">Folio N°  {folio}</h4>
       <h3 className="factigisCarta_h3">CERTIFICADO DE FACTIBILIDAD</h3>
       <br />
-      <p className="factigisCarta_p p1"><b>CHILQUINTA ENERGÍA S.A.,</b> certifica la factibilidad de suministro de energía eléctrica en la propiedad {direccion}, según lo indicado en el DFL N° 4 del año 2006, Ministerio de Minería (artículos 125 y 126), sus Reglamentos y Normas Eléctricas.</p>
+      <p className="factigisCarta_p p1"><b>{this.state.myCompany.toUpperCase()} S.A.,</b> certifica la factibilidad de suministro de energía eléctrica en la propiedad {direccion}, según lo indicado en el DFL N° 4 del año 2006, Ministerio de Minería (artículos 125 y 126), sus Reglamentos y Normas Eléctricas.</p>
       <p className="factigisCarta_p p2">La presente certificación de factibilidad se otorga bajo el supuesto que el suministro se podrá conectar en las condiciones técnicas de tensión, potencia y número de fases que actualmente posee la red eléctrica donde se conectará el empalme.</p>
       <p className="factigisCarta_p p3">En caso de no cumplirse el supuesto antes indicado, será necesario que el interesado pague los costos de estudios para elaborar proyecto y presupuesto, con el propósito de llegar a un acuerdo comercial con CHILQUINTA ENERGÍA S.A.</p>
       <p className="factigisCarta_p p4">Se extiende el presente certificado a solicitud de <b>{solicitante}</b>, para los fines que estime conveniente.</p>

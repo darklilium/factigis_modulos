@@ -321,6 +321,8 @@ class FactigisBackOffice extends React.Component {
   }
 
   componentDidMount(){
+      const user = cookieHandler.get('usrprfl')
+
   /*  var d = cookieHandler.get('wllExp');
       if(d > getFormatedDate()){
         console.log("dentro del rango");
@@ -386,7 +388,7 @@ class FactigisBackOffice extends React.Component {
       const page = env.SAVEAPPLICATIONNAME;
       const module = "FACTIGIS_REVISAR_FACTIBILIDAD";
       const date = getFormatedDate();
-      const user = cookieHandler.get('usrprfl')
+
       const myToken = cookieHandler.get('tkn');
 
       //console.log(user['USUARIO']);
@@ -637,7 +639,7 @@ class FactigisBackOffice extends React.Component {
 
     let src = env.CSSDIRECTORY+'images/logo_factigis.png';
     let prof = cookieHandler.get('usrprfl');
-    prof = prof.NOMBRE_COMPLETO.split(" ");
+    let name = prof.NOMBRE_COMPLETO.split(" ");
 
     return (
       <div className="wrapper_factigisBO">
@@ -653,7 +655,7 @@ class FactigisBackOffice extends React.Component {
                 </div>
               </div>
               <div className="welcome_logout_wrapper">
-                <h6>Bienvenido:  {prof[0]}</h6>
+                <h6>Bienvenido:  {name[0]} / Empresa: {prof.EMPRESA}</h6>
                 <IconButton icon='settings_power' inverse={ true } onClick={this.onLoggOff.bind(this)}/>
               </div>
             </div>
