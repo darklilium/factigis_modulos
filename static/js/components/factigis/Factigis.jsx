@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Factigis_Add from '../factigis/Factigis_Add.jsx';
 import mymap from '../../services/map-service';
-import {addCertainLayer} from '../../services/layers-service';
 import LayerList from '../../components/LayerList.jsx';
 import layers from '../../services/layers-service';
 import FModal from '../factigis/Factigis_Modal.jsx';

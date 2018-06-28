@@ -6,8 +6,9 @@ function FactigisModuleList(){
   return [
     {module: 'GENERAR_FACTIBILIDAD', alias: 'CREAR', widgets:["CREAR_FACTIBILIDAD","BUSCAR_FOLIO","CREAR_DIRECCION"] , Available: 'yes', Permission: 'no', Insert: 'no', Update: 'no', Delete: 'no', url:'factigis.html', color: 'transparent', img: env.CSSDIRECTORY+'images/factigis_images/icono_planificacion.png' },
     {module: 'REVISAR_FACTIBILIDAD', alias: 'REVISAR',  widgets:["BUSCAR_FACTIBILIDADES", "LISTAR_FACTIBILIDAD","MODIFICAR_ESTADO_FACTIBILIDAD"] , Available: 'yes', Permission: 'no', Insert: 'no', Update: 'no', Delete: 'no',url:'backoffice_factigis.html', color: 'transparent', img:env.CSSDIRECTORY+'images/factigis_images/icono_verificarcliente.png'},
-    {module: 'REVISAR_HISTORIAL_FACTIBILIDAD',alias: 'REVISAR HISTORIAL', widget:["BUSCAR_HISTORIA_FACTIBILIDAD","LISTAR_FACTIBILIDAD", "VER_FACTIBILIDAD"] , Available: 'yes', Permission: 'no', Insert: 'no', Update: 'no', Delete: 'no',url:'backoffice2_factigis.html', color: 'transparent', img: env.CSSDIRECTORY+'images/factigis_images/icono_factigis_revision.png'}
-
+    {module: 'REVISAR_HISTORIAL_FACTIBILIDAD',alias: 'REVISAR HISTORIAL', widget:["BUSCAR_HISTORIA_FACTIBILIDAD","LISTAR_FACTIBILIDAD", "VER_FACTIBILIDAD"] , Available: 'yes', Permission: 'no', Insert: 'no', Update: 'no', Delete: 'no',url:'backoffice2_factigis.html', color: 'transparent', img: env.CSSDIRECTORY+'images/factigis_images/icono_factigis_revision.png'},
+    {module: 'REVISAR_SGO',alias: 'REVISAR SGO', widget:["REVISAR_SGO"] , Available: 'yes', Permission: 'no', Insert: 'no', Update: 'no', Delete: 'no',url:'sgo_factigis.html', color: 'transparent', img: env.CSSDIRECTORY+'images/factigis_images/icono_factigis_sgo.png'},
+    {module: 'REVISAR_VYS',alias: 'REVISAR V&S', widget:["REVISAR_VYS"] , Available: 'yes', Permission: 'no', Insert: 'no', Update: 'no', Delete: 'no',url:'vys_factigis.html', color: 'transparent', img: env.CSSDIRECTORY+'images/factigis_images/icono_factigis_vys.png'}
   ];
 
 }

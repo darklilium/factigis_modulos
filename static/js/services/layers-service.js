@@ -22,20 +22,17 @@ function myLayers(){
   }
    serviceURL = serviceMain + 'rest/services/';
 
-  //check 8 and last one
+
   return {
-    //The following layers are for common use in any gisred app.
-    read_tokenURL(){
+    //Get the token used in the whole app.
+    read_tokenURL(){ //using
       return serviceMain + "tokens/generateToken";
     },
-
-    read_logAccess(){  /*using*/
+    //Reads the permissions for each module
+    read_logAccess(){
       return serviceURL + "Admin/LogAccesos/FeatureServer/2?f=json&token=" + token.read();
     },
-    read_logAccess2(){
-    //chq mapabase(){
-    return serviceURL + "Admin/LogAccesos/FeatureServer/2?f=json&token=" + token.read();;
-    },
+    //Shows the Chilquita Basemap for layerlist
     read_mapabase(){
       return serviceURL + "MapaBase/MapServer?f=json&token=" + token.read();
     },
@@ -483,6 +480,9 @@ function myLayers(){
 
       }
 
+    },
+    read_obrasAdicionales(){
+      return serviceURL + "FACTIBILIDAD/"+env.SAVEAPPLICATIONMODULE+"/FeatureServer/4?f=json&token=" + token.read();
     }
   };
 }

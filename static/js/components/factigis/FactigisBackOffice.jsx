@@ -121,7 +121,7 @@ var tipoEstadoCerrada = [
 
 var tipoEstadoEnTramite = [
   { value: 'SGO', label: 'SGO' },
-  { value: 'V&S', label: 'V&S' }
+  { value: 'VYS', label: 'VYS' }
 ]
 
 var tipoEstadoNueva = [

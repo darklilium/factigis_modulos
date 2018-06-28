@@ -15,6 +15,9 @@ module.exports = {
          factigisCarta: './static/js/bundles/factigisCarta.js',
          factigisBackoffice: './static/js/bundles/factigisBackoffice.js',
          factigisBackoffice2: './static/js/bundles/factigisBackoffice2.js',
+         //22.05.2018: se agregan dos módulos - sgo y vys para nuevo flujo de factigis
+         factigis_sgo: './static/js/bundles/factigis_sgo.js',
+         factigis_vys: './static/js/bundles/factigis_vys.js',
     vendor: [
 
     ]
