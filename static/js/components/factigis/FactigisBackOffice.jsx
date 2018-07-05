@@ -23,8 +23,15 @@ import { AppBar, Checkbox, IconButton } from 'react-toolbox';
 import { Layout, NavDrawer, Panel, Sidebar } from 'react-toolbox';
 import env from '../../services/factigis_services/config';
 import {Button} from 'react-toolbox/lib/button';
-import {formatDateWithoutComma} from '../../utils/milliSecondsToDate';
-
+import {formatDateWithoutComma, formatDates} from '../../utils/milliSecondsToDate';
+import moment from 'moment';
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import 'react-day-picker/lib/style.css';
+import MomentLocaleUtils, {
+  formatDate,
+  parseDate,
+} from 'react-day-picker/moment';
+import 'moment/locale/es';
 
 function createDataObject(){
   return {
@@ -170,15 +177,19 @@ class FactigisBackOffice extends React.Component {
       faseSelected: '',
       facB_tiposFase: '',
       facB_puntoConexion:'',
+      openFiltro: false
 
     }
     this.clearFields = this.clearFields.bind(this);
     this.loadDataa = this.loadDataa.bind(this);
     this.clearFieldsAttr = this.clearFieldsAttr.bind(this);
+    this.handleDayChangeStart = this.handleDayChangeStart.bind(this);
+    this.handleDayChangeEnd = this.handleDayChangeEnd.bind(this);
+
   }
 
-  loadDataa(){
-    loadCurrentUserData(data=>{
+  loadDataa(dateRange){
+    loadCurrentUserData(dateRange, (data)=>{
       let loadData = data.map(result=>{
 
         let theData = {
@@ -233,8 +244,6 @@ class FactigisBackOffice extends React.Component {
         console.log(loadData);
       });
         this.setState({myData: loadData});
-        var prof = cookieHandler.get('usrprfl');
-        this.setState({zonaTitle: prof.ZONA_USUARIO})
         $("#iframeloadingBO").hide();
     });
 
@@ -378,7 +387,7 @@ class FactigisBackOffice extends React.Component {
 
       //LOAD FACTIBILIDAD FOR CURRENT USER : RULES: PER HIS/HER ZONE and <> of FACTIBILIDAD DIRECTA
 
-      this.loadDataa();
+      //this.loadDataa();
       var toggle = new BasemapToggle({
         map: mapp,
         basemap: "hybrid"
@@ -393,6 +402,9 @@ class FactigisBackOffice extends React.Component {
 
       //console.log(user['USUARIO']);
     saveGisredLogin(user['USUARIO'],date,page,module,myToken);
+    var prof = cookieHandler.get('usrprfl');
+    console.log(prof);
+    this.setState({zonaTitle: prof.ZONA_USUARIO})
   }
 
 
@@ -478,9 +490,9 @@ class FactigisBackOffice extends React.Component {
   onChangeObs(e){console.log(e.currentTarget.value.length); this.setState({facb_observaciones:  e.currentTarget.value });}
 
   openModal () { this.setState({open: true}); }
-
+  openFiltro() { this.setState({openFiltro: true}); }
   closeModal () { this.setState({open: false}); }
-
+  closeModalFiltro() { this.setState({openFiltro: false}); }
   clearFields(){
     let mapp = mymap.getMap();
     mapp.graphics.clear();
@@ -618,8 +630,14 @@ class FactigisBackOffice extends React.Component {
       $('.fact_bo_poste').css('color',"black");
       this.clearFieldsAttr();
       //LOAD FACTIBILIDAD FOR CURRENT USER : RULES: PER HIS/HER ZONE and <> of FACTIBILIDAD DIRECTA
-      this.loadDataa();
-
+      const {selectedDayStart, selectedDayEnd} = this.state;
+      console.log(selectedDayStart, selectedDayEnd);
+      //asumir mismo día
+      if(selectedDayStart == selectedDayEnd){
+        this.loadDataa("AND created_date >= '"+ selectedDayStart + " 00:00:00' AND created_date <= '" + selectedDayEnd +" 23:59:59'")
+      }else{
+        this.loadDataa("AND created_date >= '"+ selectedDayStart +" 00:00:00' AND created_date <='" + selectedDayEnd + " 23:59:59'");
+      }
     });
 
   }
@@ -630,6 +648,38 @@ class FactigisBackOffice extends React.Component {
     }
       window.location.href = e;
   }
+
+  FiltrarFactibilidades(){
+    const {selectedDayStart, selectedDayEnd} = this.state;
+
+    if((typeof selectedDayStart=='undefined') || (typeof selectedDayEnd=='undefined')|| (selectedDayStart == "NaN/NaN/NaN") || (selectedDayEnd == "NaN/NaN/NaN")) {
+      console.log("all");
+      this.setState({modalStatusFiltro: "Debe elegir una fecha inicial y final para buscar factibilidades."})
+      this.openFiltro();
+      return;
+    }
+
+
+    //asumir mismo día
+    if(selectedDayStart == selectedDayEnd){
+      this.loadDataa("AND created_date >= '"+ selectedDayStart + " 00:00:00' AND created_date <= '" + selectedDayEnd +" 23:59:59'")
+    }else{
+      this.loadDataa("AND created_date >= '"+ selectedDayStart +" 00:00:00' AND created_date <='" + selectedDayEnd + " 23:59:59'");
+    }
+
+  }
+
+
+    handleDayChangeStart(day) {
+
+      this.setState({ selectedDayStart: formatDates(day) });
+    }
+
+    handleDayChangeEnd(day) {
+
+      this.setState({ selectedDayEnd: formatDates(day) });
+    }
+
 
   render(){
     if(!cookieHandler.get('usrprmssns') || (!cookieHandler.get('usrprfl'))){
@@ -661,6 +711,41 @@ class FactigisBackOffice extends React.Component {
             </div>
           </AppBar>
         </Panel>
+        {/*Agregado panel de filtro de busqueda*/}
+        <div className="bo2_table">
+          <div>
+            <h1 className="factigisBO2_h1">Filtro de Búsqueda: <b className="factigis_bo2-b"></b></h1>
+          </div>
+          <div className="factigisBO2_filtro_wrapper">
+            <h4 className="h4_filter_titles">Desde: </h4>
+            <DayPickerInput
+              onDayChange = {this.handleDayChangeStart.bind(this)}
+              formatDate={formatDate}
+              parseDate={parseDate}
+              format="L"
+              placeholder={`${formatDate(new Date(), 'LL', 'es')}`}
+                     dayPickerProps={{
+                       locale: 'es',
+                       localeUtils: MomentLocaleUtils,
+                     }}
+            />
+            <h4 className="h4_filter_titles padding_left_elm">Hasta: </h4>
+            <DayPickerInput
+                id="dpEnd"
+               onDayChange = {this.handleDayChangeEnd.bind(this)}
+               formatDate={formatDate}
+               parseDate={parseDate}
+               format="L"
+               placeholder={`${formatDate(new Date(), 'LL', 'es')}`}
+                      dayPickerProps={{
+                        locale: 'es',
+                        localeUtils: MomentLocaleUtils,
+                      }}
+
+            />
+              <button className="factigis_submitButton btn btn-info margin_left_elm" onClick={this.FiltrarFactibilidades.bind(this)}>Filtrar Búsqueda</button>
+          </div>
+        </div>
 
         <div className="factigisBO_table">
           <FG_GridPerZone title={"Medidores"} data={this.state.myData}  callbackParent={this.onChildChanged.bind(this)}/>
@@ -792,6 +877,12 @@ class FactigisBackOffice extends React.Component {
           <p>{this.state.modalStatus}</p>
           <br />
           <button className="factigis_submitButton btn btn-info" onClick={this.closeModal.bind(this)}>Close</button>
+        </Modal>
+        <Modal isOpen={this.state.openFiltro} style={customStyles}>
+          <h2 className="factigis_h2">Filtro Búsquedas</h2>
+          <p>{this.state.modalStatusFiltro}</p>
+          <br />
+          <button className="factigis_submitButton btn btn-info" onClick={this.closeModalFiltro.bind(this)}>Close</button>
         </Modal>
       </div>
     );

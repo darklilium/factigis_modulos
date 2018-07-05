@@ -16,9 +16,9 @@ function myLayers(){
   var serviceMain , serviceURL;
 
   if(env.BUILDFOR=="INTERNA"){
-    serviceMain = env.SSL+'gisred.chilquinta/arcgis/';
+    serviceMain = env.SSL+'gisredint.chilquinta.cl/arcgis/';
   }else{
-    serviceMain = env.SSL+'gisred.chilquinta.cl:5555/arcgis/';
+    serviceMain = env.SSL+'gisred.chilquinta.cl:6443/arcgis/';
   }
    serviceURL = serviceMain + 'rest/services/';
 
@@ -671,14 +671,14 @@ function setLayers(){
       fSSEELayer.setVisibleLayers([0]);
       fSSEELayer.setImageFormat("png32");
       return fSSEELayer;
-    //  http://gisred.chilquinta.cl:5555/arcgis/rest/services/Cartografia/Cartografia/MapServer
+
     },
     gis_chqbasemap(){
       var fSSEELayer = new esri.layers.ArcGISDynamicMapServiceLayer(myLayers().read_mapabase(),{id:"gis_chqbasemap"});
 
       fSSEELayer.setImageFormat("png32");
       return fSSEELayer;
-    //  http://gisred.chilquinta.cl:5555/arcgis/rest/services/Cartografia/Cartografia/MapServer
+  
     },
     mobile_direccionesNuevas(){
       var fSSEELayer = new esri.layers.ArcGISDynamicMapServiceLayer(myLayers().read_direccionesNuevasMobile(),{id:"mobile_direccionesNuevas",

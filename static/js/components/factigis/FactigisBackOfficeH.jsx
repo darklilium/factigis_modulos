@@ -183,7 +183,8 @@ class FactigisBackOfficeH extends React.Component {
       btnGuardarState2: true,
       btnGuardarState3: true,
       fases: [],
-      selectedRowId: ''
+      selectedRowId: '',
+      openFiltro: false
 
     }
     this.loadDataa = this.loadDataa.bind(this);
@@ -447,8 +448,9 @@ class FactigisBackOfficeH extends React.Component {
   }
 
   openModal () { this.setState({open: true}); }
-
+  openFiltro() { this.setState({openFiltro: true}); }
   closeModal () { this.setState({open: false}); }
+  closeModalFiltro() { this.setState({openFiltro: false}); }
 
   onLoggOff(){
       cookieHandler.remove('myLetter');
@@ -604,7 +606,14 @@ class FactigisBackOfficeH extends React.Component {
 
   FiltrarFactibilidades(){
     const {selectedDayStart, selectedDayEnd} = this.state;
-    console.log(selectedDayStart, selectedDayEnd);
+
+    if((typeof selectedDayStart=='undefined') || (typeof selectedDayEnd=='undefined')|| (selectedDayStart == "NaN/NaN/NaN") || (selectedDayEnd == "NaN/NaN/NaN")) {
+      console.log("all");
+      this.setState({modalStatusFiltro: "Debe elegir una fecha inicial y final para buscar factibilidades."})
+      this.openFiltro();
+      return;
+    }
+
     //asumir mismo día
     if(selectedDayStart == selectedDayEnd){
       this.loadDataa("AND created_date >= '"+ selectedDayStart + " 00:00:00' AND created_date <= '" + selectedDayEnd +" 23:59:59'")
@@ -619,7 +628,7 @@ class FactigisBackOfficeH extends React.Component {
     }
 
     let prof = cookieHandler.get('usrprfl');
-    console.log(prof);
+
     let name = prof.NOMBRE_COMPLETO.split(" ");
 
     let permissions = cookieHandler.get('usrprmssns');
@@ -821,6 +830,13 @@ class FactigisBackOfficeH extends React.Component {
           <p>{this.state.modalStatus}</p>
           <br />
           <button className="factigis_submitButton btn btn-info" onClick={this.closeModal.bind(this)}>Close</button>
+        </Modal>
+
+        <Modal isOpen={this.state.openFiltro} style={customStyles}>
+          <h2 className="factigis_h2">Filtro Búsquedas</h2>
+          <p>{this.state.modalStatusFiltro}</p>
+          <br />
+          <button className="factigis_submitButton btn btn-info" onClick={this.closeModalFiltro.bind(this)}>Close</button>
         </Modal>
       </div>
     );
