@@ -483,7 +483,14 @@ function myLayers(){
     },
     read_obrasAdicionales(){
       return serviceURL + "FACTIBILIDAD/"+env.SAVEAPPLICATIONMODULE+"/FeatureServer/4?f=json&token=" + token.read();
+    },
+    read_addSGOCertificate(){
+      return serviceURL + "FACTIBILIDAD/"+env.SAVEAPPLICATIONMODULE+"/FeatureServer/4/applyedits";
+    },
+    read_cortocircuito_sed(){
+      return serviceURL + "FACTIBILIDAD/"+env.SAVEAPPLICATIONMODULE+"/FeatureServer/3?f=json&token=" + token.read();
     }
+
   };
 }
 
@@ -678,7 +685,7 @@ function setLayers(){
 
       fSSEELayer.setImageFormat("png32");
       return fSSEELayer;
-  
+
     },
     mobile_direccionesNuevas(){
       var fSSEELayer = new esri.layers.ArcGISDynamicMapServiceLayer(myLayers().read_direccionesNuevasMobile(),{id:"mobile_direccionesNuevas",

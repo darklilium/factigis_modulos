@@ -35,6 +35,9 @@ import MomentLocaleUtils, {
 } from 'react-day-picker/moment';
 import 'moment/locale/es';
 
+import {factigis_findSGOCert, searchNivelesCoci} from '../../services/factigis_services/factigis_searchSGOCertificate';
+
+
 function createDataObject(){
   return {
     'Folio' : 0 ,
@@ -101,6 +104,21 @@ const customStyles = {
   }
 };
 
+const customStylesFormulario = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
+    transform             : 'translate(-50%, -50%)',
+    width                 : '50%',
+    height                : '50%',
+    textAlign             : 'center'
+  }
+};
+
+
 var tipoEstado = [
 	{ value: 'NUEVA', label: 'NUEVA' },
 	{ value: 'EN TRAMITE', label: 'EN TRAMITE' },
@@ -120,6 +138,20 @@ var tiposFase = [
 	{ value: 'C', label: 'C' },
   { value: 'ABC', label: 'ABC' }
 ];
+
+var detalle1 = [
+  {value: 'Extensión Red MT Aérea', label: 'Extensión Red MT Aérea'},
+  {value: 'Extensión Red MT Subterránea', label: 'Extensión Red MT Subterránea'},
+  {value: 'Extensión Red BT Aérea', label: 'Extensión Red BT Aérea'},
+  {value: 'Extensión Red BT Subterránea', label: 'Extensión Red BT Subterránea'},
+  {value: 'Aumento Capacidad Subestación Distribución', label: 'Aumento Capacidad Subestación Distribución'},
+  {value: 'Instalación de Nueva Subestación Distribución', label: 'Instalación de Nueva Subestación Distribución'},
+  {value: 'Refuerzo Red MT Aérea', label: 'Refuerzo Red MT Aérea'},
+  {value: 'Refuerzo Red MT Subterránea', label: 'Refuerzo Red MT Subterránea'},
+  {value: 'Refuerzo Red BT Aérea', label: 'Refuerzo Red BT Aérea'},
+  {value: 'Refuerzo Red BT Subterránea', label: 'Refuerzo Red BT Subterránea'}
+]
+
 
 class FactigisBackOfficeH extends React.Component {
 
@@ -184,7 +216,23 @@ class FactigisBackOfficeH extends React.Component {
       btnGuardarState3: true,
       fases: [],
       selectedRowId: '',
-      openFiltro: false
+      openFiltro: false,
+      factB_comuna: '',
+      //Certificado SGO
+      facB_formularioObrasAvailable: 'Elija una factibilidad',
+      facB_formularioObrasVer: true,
+      factiCert_diasVialidad: 0,
+      factiCert_diasPlazo: 0,
+      factiCert_diasMunicipales: 0,
+      factiCert_diasTerceros: 0,
+      factiCert_diasCalculados: 0,
+      factiCert_costoCompania: '',
+      factiCert_detalle1: detalle1,
+      factiCert_detalle2: [],
+      factiCert_detalle3: [],
+      factiCert_observacion: '',
+
+      facB_ubicacionMedidorTerreno: ''
 
     }
     this.loadDataa = this.loadDataa.bind(this);
@@ -232,8 +280,12 @@ class FactigisBackOfficeH extends React.Component {
       facB_clasificacion: newState[0]['Clasificacion'],
       facB_tiposFase:  newState[0]['Tipos Fase'],
       facB_puntoConexion:  String(newState[0]['Punto Conexion']),
-      selectedRowId: newState[0]['Folio']
-
+      selectedRowId: newState[0]['Folio'],
+      facB_coci1: newState[0]['Coci1'],
+      facB_coci2: newState[0]['Coci2'],
+      facB_coci3: newState[0]['Coci3'],
+      factB_comuna: newState[0]['Comuna'],
+      facB_ubicacionMedidorTerreno: newState[0]['ubicacion_medidor_terreno']
     });
       this.setState({
         cbEstadoValue: newState[0]['Estado Tramite'],
@@ -284,7 +336,60 @@ class FactigisBackOfficeH extends React.Component {
            $("#iframeloadingBO1").hide();
        });
 
+       //Buscar si factibilidad seleccionada tiene formulario obras adicionales:
+       var cert = factigis_findSGOCert(newState[0]['Folio'])
+       .then(sgoCertificate=>{
+         console.log(sgoCertificate, "found?");
+         if(sgoCertificate.length>0){
+           //Si tiene certificado , ver el contenido en la ventana.
+           this.setState({facB_formularioObrasAvailable: 'Sí', facB_formularioObrasVer: false});
+           //set los valores para mostrar en modal (VER)
+           this.setState({
+             factiCert_diasPlazo: sgoCertificate[0].attributes.DIAS_PLAZO,
+             factiCert_diasVialidad: sgoCertificate[0].attributes.DIAS_VIALIDAD,
+             factiCert_diasMunicipales: sgoCertificate[0].attributes.DIAS_MUNICIPALES,
+             factiCert_diasTerceros: sgoCertificate[0].attributes.DIAS_TERCEROS,
+             factiCert_diasCalculados: sgoCertificate[0].attributes.TOTAL_DIAS_CALCULADO,
+             factiCert_costoCompania:sgoCertificate[0].attributes.COSTO_COMPANIA,
+             factiCert_detalle1:sgoCertificate[0].attributes.DETALLE1,
+             factiCert_detalle2:sgoCertificate[0].attributes.DETALLE2,
+             factiCert_detalle3:sgoCertificate[0].attributes.DETALLE3,
+             factiCert_observacion:sgoCertificate[0].attributes.OBSERVACION,
+             facB_certificadoNumero: sgoCertificate[0].attributes.OBJECTID
+           })
 
+         }else{
+           //Si no existe certificado, crear uno nuevo.
+           this.setState({facB_formularioObrasAvailable: 'No', facB_formularioObrasVer: true})
+           //Si hay SED y es tipo BT, generar certificado de cortocircuito para SED y BT
+           if(newState[0]['Sed']>0){
+             if(newState[0]['Tipo Empalme']=='BT'){
+               this.setState({facB_formularioObrasCrear: false})
+               //Se crea para BT
+               //SE LIMPIAN LOS CAMPOS
+               this.setState({
+                 factiCert_diasPlazo: 0,
+                 factiCert_diasVialidad: 0,
+                 factiCert_diasMunicipales: 0,
+                 factiCert_diasTerceros: 0,
+                 factiCert_diasCalculados: 0,
+                 factiCert_costoCompania: 0,
+                 factiCert_observacion: ""
+               })
+             }else{
+               //Se crea para MT
+                 this.setState({facB_formularioObrasCrear: false})
+             }
+           }else{
+             //Si no hay sed, no se crea formulario de obras ad.
+             this.setState({facB_formularioObrasAvailable: 'No', facB_formularioObrasVer: true})
+           }
+
+
+         }
+       }).catch(error=>{
+         console.log(error,"no cert.");
+       })
   }
 
   componentWillMount(){
@@ -316,17 +421,7 @@ class FactigisBackOfficeH extends React.Component {
     //ADD LAYER TO SHOW IN THE MAP
     $("#iframeloadingBO1").show();
       var mapp = mymap.createMap("factigis_bo2_map","topo",-71.2905 ,-33.1009,9);
-      var layerFactibilidad = new esri.layers.ArcGISDynamicMapServiceLayer(layers.read_factibilidad(),{id:"factigis_factibildades"});
-      layerFactibilidad.setImageFormat("png32");
-      layerFactibilidad.setVisibleLayers([0]);
-      var layerDefs = [];
-      layerDefs[0] = "Estado_tramite = 'CERRADA' AND Empresa='"+ usrprfl.EMPRESA + "'";
-      layerFactibilidad.setLayerDefinitions(layerDefs);
-      /*layerFactibilidad.setInfoTemplates({
-        0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
-      });
-      */
-      mapp.addLayer(layerFactibilidad);
+
 
       //Add layer for old addresses
       var layerDirecciones = new esri.layers.ArcGISDynamicMapServiceLayer(layers.read_direccionesDyn(),{id:"factigis_direcciones"});
@@ -373,6 +468,7 @@ class FactigisBackOfficeH extends React.Component {
   }
 
   loadDataa(dateRange){
+    this.setState({myDataEstados: []});
     loadCurrentHistoryData(dateRange, (data)=>{
       let loadData = data.map(result=>{
 
@@ -421,14 +517,37 @@ class FactigisBackOfficeH extends React.Component {
           'Creador': result.attributes['created_user'],
           'Clasificacion': result.attributes['Clasificacion'],
           'Tipos Fase':  result.attributes['Tipo_fase'],
-          'Punto Conexion':  String(result.attributes['Poste_cnx_final'])
+          'Punto Conexion':  String(result.attributes['Poste_cnx_final']),
+          'Coci1': result.attributes['Coci1f'],
+          'Coci2': result.attributes['Coci2f'],
+          'Coci3': result.attributes['Coci3f'],
+          'ubicacion_medidor_terreno': result.attributes['ubicacion_medidor_terreno']
 
         }
 
         return theData;
       });
         this.setState({myData: loadData});
-        var prof = cookieHandler.get('usrprfl');
+          // Agregar defs al mapa segun busqueda de factibilidades:
+          var prof = cookieHandler.get('usrprfl');
+          var mapa = mymap.getMap();
+          if(mapa.getLayer("factigis_factibilidades")){
+            //console.log("habilitado veroad");
+            mapa.removeLayer(mapa.getLayer("factigis_factibilidades"));
+          }
+          var layerFactibilidad = new esri.layers.ArcGISDynamicMapServiceLayer(layers.read_factibilidad(),{id:"factigis_factibilidades"});
+          layerFactibilidad.setImageFormat("png32");
+          layerFactibilidad.setVisibleLayers([0]);
+          var layerDefs = [];
+          layerDefs[0] = "Estado_tramite = 'CERRADA' AND Empresa='"+ prof.EMPRESA + "' " + dateRange;
+          layerFactibilidad.setLayerDefinitions(layerDefs);
+          console.log(layerDefs,"defs");
+          /*layerFactibilidad.setInfoTemplates({
+            0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
+          });
+          */
+          mapa.addLayer(layerFactibilidad);
+
         $("#iframeloadingBO1").hide();
     });
   }
@@ -582,7 +701,9 @@ class FactigisBackOfficeH extends React.Component {
       facB_tiposFase: this.state.faseSelected,
       facB_puntoConexion: this.state.rotuloFinal,
       faseSelected: '',
-      rotuloFinal: ''
+      rotuloFinal: '',
+      factB_comuna: '',
+      facB_ubicacionMedidorTerreno: ''
 
     });
   }
@@ -621,6 +742,82 @@ class FactigisBackOfficeH extends React.Component {
       this.loadDataa("AND created_date >= '"+ selectedDayStart +" 00:00:00' AND created_date <='" + selectedDayEnd + " 23:59:59'");
     }
   }
+
+  onClickOpenFormulario(e){
+    console.log(e,"form");
+
+    if(e=='ver'){
+      this.setState({openFormularioVer: true});
+    }
+  }
+
+  closeModalFormulario(e) {
+    if (e=='ver') {
+        this.setState({openFormularioVer: false});
+    }
+  }
+
+
+    onChangeCert(e){
+      var totalCalculado = 0;
+      var valorFormateado = 0;
+
+      console.log(e.currentTarget.value, e.currentTarget.id, "1");
+      switch (e.currentTarget.id) {
+        case 'diasPlazo':
+          this.setState({
+            factiCert_diasPlazo: e.currentTarget.value,
+          });
+          totalCalculado = parseInt(this.state.factiCert_diasVialidad) +
+          parseInt(this.state.factiCert_diasMunicipales) +
+          parseInt(this.state.factiCert_diasTerceros) +
+          parseInt(e.currentTarget.value);
+          this.setState({factiCert_diasCalculados: totalCalculado})
+        break;
+
+        case "diasVialidad":
+          this.setState({factiCert_diasVialidad: e.currentTarget.value})
+          totalCalculado = parseInt(this.state.factiCert_diasPlazo) +
+          parseInt(this.state.factiCert_diasMunicipales) +
+          parseInt(this.state.factiCert_diasTerceros) +
+          parseInt(e.currentTarget.value);
+          this.setState({factiCert_diasCalculados: totalCalculado})
+        break;
+
+        case "diasMunicipales":
+          this.setState({factiCert_diasMunicipales: e.currentTarget.value})
+          totalCalculado = parseInt(this.state.factiCert_diasPlazo) +
+          parseInt(this.state.factiCert_diasVialidad) +
+          parseInt(this.state.factiCert_diasTerceros) +
+          parseInt(e.currentTarget.value);
+          this.setState({factiCert_diasCalculados: totalCalculado})
+        break;
+
+        case "diasTerceros":
+          this.setState({factiCert_diasTerceros: e.currentTarget.value})
+          totalCalculado = parseInt(this.state.factiCert_diasPlazo) +
+          parseInt(this.state.factiCert_diasVialidad) +
+          parseInt(this.state.factiCert_diasMunicipales) +
+          parseInt(e.currentTarget.value);
+          this.setState({factiCert_diasCalculados: totalCalculado})
+        break;
+
+        case "diasCalculados":
+        break;
+
+        case "costoCompania":
+
+          this.setState({factiCert_costoCompania: e.currentTarget.value})
+        break;
+
+        case "observacion":
+          this.setState({factiCert_observacion: e.currentTarget.value})
+        break;
+
+        default:
+
+      }
+    }
   render(){
     if(!cookieHandler.get('usrprmssns') || (!cookieHandler.get('usrprfl'))){
       window.location.href = "index.html";
@@ -734,7 +931,10 @@ class FactigisBackOfficeH extends React.Component {
                 <h8 className="">Clasificación: {this.state.facB_clasificacion}</h8>
                 <h8 className="">Fases Conexión: {this.state.facB_tiposFase}</h8>
                 <h8 className="">Punto Conexión: {this.state.facB_puntoConexion}</h8>
-
+                <h6 className="factigis_bo1-h6"><b>Niveles Cortocircuito: </b></h6>
+                <h8 className="">Coci1: {this.state.facB_coci1}</h8>
+                <h8 className="">Coci2: {this.state.facB_coci2}</h8>
+                <h8 className="">Coci3: {this.state.facB_coci3}</h8>
               </div>
                 <div className="wrapper_mid-split-1">
                 <h6 className="factigis_bo2-h6"><b>Datos de Red</b></h6>
@@ -756,6 +956,20 @@ class FactigisBackOfficeH extends React.Component {
                 <h8 className="">Zona: {this.state.facB_zona}</h8>
                 <h8 className="">Distancia Rotulo - Medidor (m): {this.state.factB_distanciaRM}</h8>
                 <h8 className="">Distancia Dirección - Medidor (m): {this.state.factB_distanciaDM}</h8>
+                <h8 className="">Comuna: {this.state.factB_comuna}</h8>
+
+                <h6 className="factigis_bo1-h6"><b>¿Medidor en Terreno?  {this.state.facB_ubicacionMedidorTerreno} </b></h6>
+
+
+                <h6 className="factigis_bo1-h6"><b>Formulario de Obras Adicionales</b></h6>
+                <h8 className="">¿Disponible?: {this.state.facB_formularioObrasAvailable}</h8>
+
+                <div className="factigisCert_wrapperButtons">
+                  <button onClick={this.onClickOpenFormulario.bind(this, "ver")} disabled={this.state.facB_formularioObrasVer} className="factigis_bo_btnFormulario factiCert_btn btn btn-info" title="Selección de Rótulo " type="button" >
+                    <span><i className="fa fa-eye"></i>Ver</span>
+                  </button>
+
+                </div>
 
               </div>
             </div>
@@ -837,6 +1051,49 @@ class FactigisBackOfficeH extends React.Component {
           <p>{this.state.modalStatusFiltro}</p>
           <br />
           <button className="factigis_submitButton btn btn-info" onClick={this.closeModalFiltro.bind(this)}>Close</button>
+        </Modal>
+
+        {/*Form Ver Cert.*/}
+        <Modal isOpen={this.state.openFormularioVer} style={customStylesFormulario}>
+          <h2 className="factigis_h2">(VER) Formulario Obras Adicionales</h2>
+
+          <h5 className="factigis_bo1_zonas">ID Factibilidad: <b>{this.state.facB_folio}</b></h5>
+          <h5 className="factigis_bo1_zonas">Certificado N°: <b>{this.state.facB_certificadoNumero}</b></h5>
+          <br />
+          <div className="factiCert_wrapper">
+
+            <div className="factiCert_left">
+              <h8 className="factiCert_h8">Plazo Ejecución Obras Adicionales (días):</h8>
+              <h8 className="factiCert_h8">Plazo Trámites Vialidad (días):</h8>
+              <h8 className="factiCert_h8">Plazo Permisos Municipales (días):</h8>
+              <h8 className="factiCert_h8">Plazo Autorización Terceros (días):</h8>
+              <h8 className="factiCert_h8">Plazo Total (días):</h8>
+              <h8 className="factiCert_h8">Costo Compañía ($):</h8>
+              <h8 className="factiCert_h8">Detalle 1:</h8>
+              <h8 className="factiCert_h8">Detalle 2:</h8>
+              <h8 className="factiCert_h8">Detalle 3:</h8>
+              <h8 className="factiCert_h8">Observación:</h8>
+            </div>
+
+            <div className="factiCert_right">
+              <input id="diasPlazo" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasPlazo}  title="Días Plazo" disabled={true}/>
+              <input id="diasVialidad" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasVialidad}  onChange={this.onChangeCert.bind(this)} title="Días Vialidad"  disabled={true} />
+              <input id="diasMunicipales" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasMunicipales}  onChange={this.onChangeCert.bind(this)} title="Días Municipales"  disabled={true} />
+              <input id="diasTerceros" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasTerceros}  onChange={this.onChangeCert.bind(this)} title="Días Terceros"  disabled={true} />
+              <input id="diasCalculados" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasCalculados}  onChange={this.onChangeCert.bind(this)} title="Días Calculados"  disabled={true}/>
+              <input id="costoCompania" step="any" className="input_cert" type="number" min="0" placeholder="Ingrese Costo" value={this.state.factiCert_costoCompania}  onChange={this.onChangeCert.bind(this)} title="Costo Compañia"  disabled={true}/>
+              <input id="txtDetalle1" className="input_cert" type="text"  placeholder="" value={this.state.factiCert_detalle1}  onChange={this.onChangeCert.bind(this)} title="Detalle 1"  disabled={true}/>
+              <input id="txtDetalle2" className="input_cert" type="text"  placeholder="" value={this.state.factiCert_detalle2}  onChange={this.onChangeCert.bind(this)} title="Detalle 2"  disabled={true}/>
+              <input id="txtDetalle3" className="input_cert" type="text"  placeholder="" value={this.state.factiCert_detalle3}  onChange={this.onChangeCert.bind(this)} title="Detalle 3"  disabled={true}/>
+              <input id="observacion" className="input_cert" type="text" placeholder="" value={this.state.factiCert_observacion}  onChange={this.onChangeCert.bind(this)} title="Observación"  disabled={true}/>
+            </div>
+
+          </div>
+          <div className="factiCert_admButtons_wrapper">
+              <button className="factigis_submitButton btn btn-info" onClick={this.closeModalFormulario.bind(this,'ver')}>Close</button>
+          </div>
+          <br />
+
         </Modal>
       </div>
     );

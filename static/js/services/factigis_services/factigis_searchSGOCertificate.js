@@ -31,4 +31,31 @@ function factigis_findSGOCert(idfactibilidad){
 
 }
 
-export {factigis_findSGOCert}
+
+function searchNivelesCoci(sed){
+  var promise = new Promise((resolve,reject)=>{
+    var qTaskInterruptions = new esri.tasks.QueryTask(layers.read_cortocircuito_sed());
+    var qInterruptions = new esri.tasks.Query();
+
+    qInterruptions.returnGeometry = false;
+    qInterruptions.outFields=["*"];
+    qInterruptions.where = `SED = '${sed}'`;
+
+    qTaskInterruptions.execute(qInterruptions, (featureSet)=>{
+      console.log("niveles coci para sed", sed, featureSet.features);
+
+      if(!featureSet.features.length){
+
+        return resolve([]);
+      }
+
+      resolve(featureSet.features);
+    }, (Errorq)=>{
+      console.log(Errorq,"Error doing query for searchNivelesCoci");
+      reject([]);
+    });
+  });
+
+  return promise;
+}
+export {factigis_findSGOCert, searchNivelesCoci}

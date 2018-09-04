@@ -218,6 +218,8 @@ h8 { font-size: 12px; }
 
 .factiCert_btn { width: 30%; margin: 0em 0.5em; }
 
+.factiCert_h8_red { color: red; }
+
 .griddle-container { border: 1px solid #DDD; }
 
 .griddle .top-section { clear: both; display: table; width: 100%; }

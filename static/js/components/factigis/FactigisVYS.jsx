@@ -184,6 +184,10 @@ class FactigisVYS extends React.Component {
       faseSelected: '',
       facB_tiposFase: '',
       facB_puntoConexion:'',
+      //agregando niveles coci
+      facB_coci1: '',
+      facB_coci2: '',
+      facB_coci3: ''
 
     }
     this.clearFields = this.clearFields.bind(this);
@@ -241,7 +245,11 @@ class FactigisVYS extends React.Component {
           'TiposFase':  result.attributes['Tipo_fase'],
           'Punto Conexion': String(result.attributes['Poste_cnx_final']),
           'Fecha Creacion': formatDateWithoutComma(result.attributes['created_date']),
-          'Comuna': result.attributes['Comuna']
+          'Comuna': result.attributes['Comuna'],
+          //agregando niveles coci
+          'Coci1': result.attributes['Coci1f'],
+          'Coci2': result.attributes['Coci2f'],
+          'Coci3': result.attributes['Coci3f']
         }
         return theData;
         console.log(loadData);
@@ -299,7 +307,10 @@ class FactigisVYS extends React.Component {
       facB_puntoConexion:  newState[0]['Punto Conexion'],
       btnGuardarState: false,
       factB_fechaCreacion: newState[0]['Fecha Creacion'],
-      factB_comuna: newState[0]['Comuna']
+      factB_comuna: newState[0]['Comuna'],
+      facB_coci1: newState[0]['Coci1'],
+      facB_coci2: newState[0]['Coci2'],
+      facB_coci3: newState[0]['Coci3']
     });
 
      //query for getting the SED name and kva.
@@ -491,7 +502,8 @@ class FactigisVYS extends React.Component {
               ID_Factibilidad: myDataUpdate["OBJECTID"],
               Fecha_cambio: getFormatedDate(),
               Observacion: this.state.facb_observaciones,
-              Usuario:  usrprfl.USUARIO
+              Usuario:  usrprfl.USUARIO,
+              empresa: usrprfl.EMPRESA
               }
             agregarEstadoHistoria(historial, myhistorialCb =>{
               if(myhistorialCb){
@@ -534,7 +546,6 @@ class FactigisVYS extends React.Component {
     this.setState({
     facb_observaciones: '',
 
-    zonaTitle: '',
     opcionesEstado: tipoEstado,
     opcionesMejora: [],
     cbEstadoValue: '',
@@ -589,7 +600,11 @@ class FactigisVYS extends React.Component {
       facB_tiposFase: this.state.faseSelected,
       facB_puntoConexion: this.state.rotuloFinal,
       faseSelected: '',
-      rotuloFinal: ''
+      rotuloFinal: '',
+      //18.7.2018: agregando niveles coci
+      facB_coci1: '',
+      facB_coci2: '',
+      facB_coci3: ''
 
     });
   }
@@ -739,6 +754,11 @@ class FactigisVYS extends React.Component {
                 <h8 className="">Clasificación: {this.state.facB_clasificacion}</h8>
                 <h8 className="">Fases Conexión: {this.state.facB_tiposFase}</h8>
                 <h8 className="">Punto Conexión: {this.state.facB_puntoConexion}</h8>
+
+                <h6 className="factigis_bo1-h6"><b>Niveles Cortocircuito: </b></h6>
+                <h8 className="">Coci1: {this.state.facB_coci1}</h8>
+                <h8 className="">Coci2: {this.state.facB_coci2}</h8>
+                <h8 className="">Coci3: {this.state.facB_coci3}</h8>
 
               </div>
                 <div className="wrapper_mid-split-1">

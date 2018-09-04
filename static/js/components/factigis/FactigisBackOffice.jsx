@@ -128,6 +128,11 @@ var tipoEstadoNueva = [
   { value: 'POR DEFINIR', label: 'POR DEFINIR' }
 ]
 
+var estadosTerreno = [
+  { value: 'SI', label: 'SI' },
+  { value: 'NO', label: 'NO' }
+]
+
 class FactigisBackOffice extends React.Component {
 
   constructor(props){
@@ -192,7 +197,14 @@ class FactigisBackOffice extends React.Component {
       faseSelected: '',
       facB_tiposFase: '',
       facB_puntoConexion:'',
-      openFiltro: false
+      openFiltro: false,
+      //agregando niveles coci
+      facB_coci1: '',
+      facB_coci2: '',
+      facB_coci3: '',
+      //estado Terreno
+      estadoTerreno: estadosTerreno,
+      facB_ubicacionMedidorTerreno: ''
 
     }
     this.clearFields = this.clearFields.bind(this);
@@ -253,12 +265,37 @@ class FactigisBackOffice extends React.Component {
           'TiposFase':  result.attributes['Tipo_fase'],
           'Punto Conexion': String(result.attributes['Poste_cnx_final']),
           'Fecha Creacion': formatDateWithoutComma(result.attributes['created_date']),
-          'Comuna': result.attributes['Comuna']
+          'Comuna': result.attributes['Comuna'],
+          //agregando niveles coci
+          'Coci1': result.attributes['Coci1f'],
+          'Coci2': result.attributes['Coci2f'],
+          'Coci3': result.attributes['Coci3f'],
+          'ubicacion_medidor_terreno': result.attributes['ubicacion_medidor_terreno']
         }
         return theData;
         console.log(loadData);
       });
         this.setState({myData: loadData});
+
+        // Agregar defs al mapa segun busqueda de factibilidades:
+        var prof = cookieHandler.get('usrprfl');
+        var mapa = mymap.getMap();
+        if(mapa.getLayer("factigis_factibilidades")){
+          //console.log("habilitado veroad");
+          mapa.removeLayer(mapa.getLayer("factigis_factibilidades"));
+        }
+        var layerFactibilidad = new esri.layers.ArcGISDynamicMapServiceLayer(layers.read_factibilidad(),{id:"factigis_factibilidades"});
+        layerFactibilidad.setImageFormat("png32");
+        layerFactibilidad.setVisibleLayers([0]);
+        var layerDefs = [];
+        layerDefs[0] = "Zona ='"+ prof.ZONA_USUARIO + "' AND tipo_mejora <> 'FACTIBILIDAD DIRECTA' AND Estado_tramite <> 'CERRADA' AND EMPRESA='"+ prof.EMPRESA + "' " + dateRange;
+        layerFactibilidad.setLayerDefinitions(layerDefs);
+        console.log(layerDefs,"defdss");
+        /*layerFactibilidad.setInfoTemplates({
+          0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
+        });
+        */
+        mapa.addLayer(layerFactibilidad);
         $("#iframeloadingBO").hide();
     });
 
@@ -266,51 +303,55 @@ class FactigisBackOffice extends React.Component {
 
   onChildChanged(newState){
       $("#iframeloadingBO").show();
-
-    this.setState({
-      facB_rut: newState[0]['Rut'],
-      facB_folio: newState[0]['Folio'],
-      facB_nombre: newState[0]['Nombre'],
-      facB_apellido: newState[0]['Apellido'],
-      facB_telefono: newState[0]['Telefono'],
-      facB_email: newState[0]['Email'],
-      facB_tipoCliente: newState[0]['Tipo Cliente'],
-      facB_tipoContribuyente: newState[0]['Tipo Contribuyente'],
-      facB_tipoFactibilidad: newState[0]['Tipo Factibilidad'],
-      facB_tipoMejora: newState[0]['Tipo Mejora'],
-      facB_estadoTramite: newState[0]['Estado Tramite'],
-      facB_origenFactibilidad: newState[0]['Origen Factibilidad'],
-      facB_rotulo: newState[0]['Rotulo'],
-      facB_direccion: newState[0]['Direccion'],
-      facB_tipoBTMT: newState[0]['Tipo Empalme'],
-      facB_tramo: newState[0]['Tramo'],
-      facB_sed: newState[0]['Sed'],
-      facB_tipoEmpalme: newState[0]['Empalme'],
-      facB_fase: newState[0]['Fase'],
-      facB_potencia: newState[0]['Potencia'],
-      facB_tiempoEmpalme: newState[0]['Tiempo Empalme'],
-      facB_cantidadEmpalme: newState[0]['Cantidad Empalme'],
-      facB_potenciaSolicitada: newState[0]['Potencia'],
-      facB_potenciaDisponible: newState[0]['PotenciaDispSed'],
-      facB_potenciaCalculada: newState[0]['Potencia Calculada'],
-      facB_zona: newState[0]['Zona'],
-      facB_concesion: newState[0]['Zona Concesion'],
-      facB_restringida: newState[0]['Zona Restringida'],
-      facB_vialidad: newState[0]['Zona Vialidad'],
-      facB_campamento: newState[0]['Zona Campamentos'],
-      facB_transmision: newState[0]['Zona Transmision'],
-      factB_distanciaDM: newState[0]['DistDireccionMedidor'],
-      factB_distanciaRM: newState[0]['DistRotuloMedidor'],
-      cbEstadoValue: newState[0]['Estado Tramite'],
-      cbMejoraValue: newState[0]['Tipo Mejora'],
-      facb_observaciones: '',
-      facB_clasificacion: newState[0]['Clasificacion'],
-      facB_tiposFase:  newState[0]['TiposFase'],
-      facB_puntoConexion:  newState[0]['Punto Conexion'],
-      btnGuardarState: false,
-      factB_fechaCreacion: newState[0]['Fecha Creacion'],
-      factB_comuna: newState[0]['Comuna']
-    });
+      console.log(newState,"state");
+      this.setState({
+        facB_rut: newState[0]['Rut'],
+        facB_folio: newState[0]['Folio'],
+        facB_nombre: newState[0]['Nombre'],
+        facB_apellido: newState[0]['Apellido'],
+        facB_telefono: newState[0]['Telefono'],
+        facB_email: newState[0]['Email'],
+        facB_tipoCliente: newState[0]['Tipo Cliente'],
+        facB_tipoContribuyente: newState[0]['Tipo Contribuyente'],
+        facB_tipoFactibilidad: newState[0]['Tipo Factibilidad'],
+        facB_tipoMejora: newState[0]['Tipo Mejora'],
+        facB_estadoTramite: newState[0]['Estado Tramite'],
+        facB_origenFactibilidad: newState[0]['Origen Factibilidad'],
+        facB_rotulo: newState[0]['Rotulo'],
+        facB_direccion: newState[0]['Direccion'],
+        facB_tipoBTMT: newState[0]['Tipo Empalme'],
+        facB_tramo: newState[0]['Tramo'],
+        facB_sed: newState[0]['Sed'],
+        facB_tipoEmpalme: newState[0]['Empalme'],
+        facB_fase: newState[0]['Fase'],
+        facB_potencia: newState[0]['Potencia'],
+        facB_tiempoEmpalme: newState[0]['Tiempo Empalme'],
+        facB_cantidadEmpalme: newState[0]['Cantidad Empalme'],
+        facB_potenciaSolicitada: newState[0]['Potencia'],
+        facB_potenciaDisponible: newState[0]['PotenciaDispSed'],
+        facB_potenciaCalculada: newState[0]['Potencia Calculada'],
+        facB_zona: newState[0]['Zona'],
+        facB_concesion: newState[0]['Zona Concesion'],
+        facB_restringida: newState[0]['Zona Restringida'],
+        facB_vialidad: newState[0]['Zona Vialidad'],
+        facB_campamento: newState[0]['Zona Campamentos'],
+        facB_transmision: newState[0]['Zona Transmision'],
+        factB_distanciaDM: newState[0]['DistDireccionMedidor'],
+        factB_distanciaRM: newState[0]['DistRotuloMedidor'],
+        cbEstadoValue: newState[0]['Estado Tramite'],
+        cbMejoraValue: newState[0]['Tipo Mejora'],
+        facb_observaciones: '',
+        facB_clasificacion: newState[0]['Clasificacion'],
+        facB_tiposFase:  newState[0]['TiposFase'],
+        facB_puntoConexion:  newState[0]['Punto Conexion'],
+        btnGuardarState: false,
+        factB_fechaCreacion: newState[0]['Fecha Creacion'],
+        factB_comuna: newState[0]['Comuna'],
+        facB_coci1: newState[0]['Coci1'],
+        facB_coci2: newState[0]['Coci2'],
+        facB_coci3: newState[0]['Coci3'],
+        facB_ubicacionMedidorTerreno: newState[0]['ubicacion_medidor_terreno']
+      });
 
      //query for getting the SED name and kva.
      //if 0 = 'NO NAME AVAILABLE' and no kva available
@@ -379,7 +420,7 @@ class FactigisBackOffice extends React.Component {
       let prfl = cookieHandler.get('usrprfl');
       var mapp = mymap.createMap("factigis_bo1_map","topo",-71.2905 ,-33.1009,9);
       this.setState({themap: mapp});
-      var layerFactibilidad = new esri.layers.ArcGISDynamicMapServiceLayer(layers.read_factibilidad(),{id:"factigis_factibildades"});
+      /*var layerFactibilidad = new esri.layers.ArcGISDynamicMapServiceLayer(layers.read_factibilidad(),{id:"factigis_factibildades"});
       layerFactibilidad.setImageFormat("png32");
       layerFactibilidad.setVisibleLayers([0]);
       var layerDefs = [];
@@ -389,7 +430,7 @@ class FactigisBackOffice extends React.Component {
         0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
       });
       */
-      mapp.addLayer(layerFactibilidad);
+    //  mapp.addLayer(layerFactibilidad);
 
       //Add layer for old addresses
       var layerDirecciones = new esri.layers.ArcGISDynamicMapServiceLayer(layers.read_direccionesDyn(),{id:"factigis_direcciones"});
@@ -502,7 +543,8 @@ class FactigisBackOffice extends React.Component {
               ID_Factibilidad: myDataUpdate["OBJECTID"],
               Fecha_cambio: getFormatedDate(),
               Observacion: this.state.facb_observaciones,
-              Usuario:  usrprfl.USUARIO
+              Usuario:  usrprfl.USUARIO,
+              empresa: usrprfl.EMPRESA
               }
             agregarEstadoHistoria(historial, myhistorialCb =>{
               if(myhistorialCb){
@@ -519,7 +561,16 @@ class FactigisBackOffice extends React.Component {
 
             $("#iframeloadingBO").show();
             //refresh the grid after update.
-            this.loadDataa();
+            //this.loadDataa();
+            //LOAD FACTIBILIDAD FOR CURRENT USER : RULES: PER HIS/HER ZONE and <> of FACTIBILIDAD DIRECTA
+            const {selectedDayStart, selectedDayEnd} = this.state;
+            console.log(selectedDayStart, selectedDayEnd);
+            //asumir mismo día
+            if(selectedDayStart == selectedDayEnd){
+              this.loadDataa("AND created_date >= '"+ selectedDayStart + " 00:00:00' AND created_date <= '" + selectedDayEnd +" 23:59:59'")
+            }else{
+              this.loadDataa("AND created_date >= '"+ selectedDayStart +" 00:00:00' AND created_date <='" + selectedDayEnd + " 23:59:59'");
+            }
 
           }else{
             this.setState({open: true, modalStatus: 'No se ha podido modificar la factibilidad. Trate de nuevo.'});
@@ -545,7 +596,7 @@ class FactigisBackOffice extends React.Component {
     this.setState({
     facb_observaciones: '',
 
-    zonaTitle: '',
+    //zonaTitle: '',
     opcionesEstado: tipoEstado,
     opcionesMejora: [],
     cbEstadoValue: '',
@@ -591,7 +642,12 @@ class FactigisBackOffice extends React.Component {
     rotuloFinal: '',
     togglePoste: 'OFF',
     btnPoste: '',
-    factB_comuna: ''
+    factB_comuna: '',
+    //18.7.2018: agregando niveles coci
+    facB_coci1: '',
+    facB_coci2: '',
+    facB_coci3: '',
+    facB_ubicacionMedidorTerreno: ''
     });
   }
 
@@ -600,8 +656,9 @@ class FactigisBackOffice extends React.Component {
       facB_tiposFase: this.state.faseSelected,
       facB_puntoConexion: this.state.rotuloFinal,
       faseSelected: '',
-      rotuloFinal: ''
-
+      rotuloFinal: '',
+      facB_ubicacionMedidorTerreno: this.state.estadoTerrenoSelected,
+      estadoTerrenoSelected: ''
     });
   }
 
@@ -658,7 +715,8 @@ class FactigisBackOffice extends React.Component {
     let myDataUpdate = {
       "OBJECTID": this.state.facB_folio,
       "Poste_cnx_final": this.state.rotuloFinal,
-      "Tipo_fase": this.state.faseSelected
+      "Tipo_fase": this.state.faseSelected,
+      "ubicacion_medidor_terreno": (typeof this.state.estadoTerrenoSelected == 'undefined') ? "" : this.state.estadoTerrenoSelected
     }
     updateAttributesPerFolio(myDataUpdate, (cb)=>{
       if(!cb){
@@ -716,15 +774,19 @@ class FactigisBackOffice extends React.Component {
   }
 
 
-    handleDayChangeStart(day) {
+  handleDayChangeStart(day) {
 
       this.setState({ selectedDayStart: formatDates(day) });
     }
 
-    handleDayChangeEnd(day) {
+  handleDayChangeEnd(day) {
 
       this.setState({ selectedDayEnd: formatDates(day) });
-    }
+  }
+
+  onChangeEstadoTerreno(e){
+    this.setState({estadoTerrenoSelected: e})
+  }
 
 
   render(){
@@ -824,8 +886,12 @@ class FactigisBackOffice extends React.Component {
                 <h8 className="">Fases Conexión: {this.state.facB_tiposFase}</h8>
                 <h8 className="">Punto Conexión: {this.state.facB_puntoConexion}</h8>
 
+                <h6 className="factigis_bo1-h6"><b>Niveles Cortocircuito: </b></h6>
+                <h8 className="">Coci1: {this.state.facB_coci1}</h8>
+                <h8 className="">Coci2: {this.state.facB_coci2}</h8>
+                <h8 className="">Coci3: {this.state.facB_coci3}</h8>
               </div>
-                <div className="wrapper_mid-split-1">
+              <div className="wrapper_mid-split-1">
                 <h6 className="factigis_bo1-h6"><b>Datos de Red</b></h6>
                 <h8 className="">Rótulo: {this.state.facB_rotulo}</h8>
                 <h8 className="">Propiedad: {this.state.facB_rotuloPropiedad}</h8>
@@ -846,6 +912,9 @@ class FactigisBackOffice extends React.Component {
                 <h8 className="">Distancia Rotulo - Medidor (m): {this.state.factB_distanciaRM}</h8>
                 <h8 className="">Distancia Dirección - Medidor (m): {this.state.factB_distanciaDM}</h8>
                 <h8 className="">Comuna: {this.state.factB_comuna}</h8>
+
+                <h6 className="factigis_bo1-h6"><b>¿Medidor en Terreno?:  {this.state.facB_ubicacionMedidorTerreno}</b></h6>
+
               </div>
 
             </div>
@@ -887,6 +956,12 @@ class FactigisBackOffice extends React.Component {
                   <div><h8>Fases de Conexión:</h8></div>
                   <div><Select className="ddlTipoCliente factigis_tipoCliente" name="form-field-name" options={this.state.fases} value={this.state.faseSelected} onChange={this.onChangeFase.bind(this)}
                     simpleValue clearable={true} searchable={false} placeholder="Seleccione las fases de conexión"/>
+                  </div>
+                </div>
+                <div className="factigis_row2">
+                  <div><h8>¿Medidor en Terreno?:</h8></div>
+                  <div><Select className="ddlMedidorTerreno factigis_tipoCliente" name="form-field-name" options={this.state.estadoTerreno} value={this.state.estadoTerrenoSelected} onChange={this.onChangeEstadoTerreno.bind(this)}
+                    simpleValue clearable={true} searchable={false} placeholder="Seleccione una opción"/>
                   </div>
                 </div>
                 <div className="factigis_row3">

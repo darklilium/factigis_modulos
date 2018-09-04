@@ -7,7 +7,7 @@ import exportGraphicsToPDF from '../../services/factigis_services/factigis_expor
 import cookieHandler from 'cookie-handler';
 import _ from 'lodash';
 import jQuery from 'jquery';
-
+import {searchNivelesCoci} from '../../services/factigis_services/factigis_searchSGOCertificate';
 /* Potencia disponible = kva - 0,327*N^(-0,203)*N*5
 
   Ejemplo Trafo 150 con 108 Clientes:
@@ -181,7 +181,8 @@ function factigis_addNuevaFactibilidad(factibilidad, callbackadd){
                       ID_Factibilidad: isDone[1],
                       Fecha_cambio: getFormatedDateNow(),
                       Observacion: "ESTADO INICIAL",
-                      Usuario:  usrprfl.USUARIO
+                      Usuario:  usrprfl.USUARIO,
+                      empresa: usrprfl.EMPRESA
                       }
                     agregarEstadoHistoria(historial, myhistorialCb =>{
                       console.log("hecho o no el historial",myhistorialCb);
@@ -276,7 +277,9 @@ function factigis_addNuevaFactibilidad(factibilidad, callbackadd){
 
         //Se agrega el origen de factibilidad:
           factibilidad.factigisOrigen = 'OFICINA COMERCIAL';
-
+          factibilidad.coci1 = 0;
+          factibilidad.coci2 = 0;
+          factibilidad.coci3 = 0;
           console.log("Estoy con la siguiente factibilidad en mt",factibilidad.factigisTipoFactibilidad);
           console.log("agregar lo siguiente a arcgis srv", factibilidad);
 
@@ -294,7 +297,8 @@ function factigis_addNuevaFactibilidad(factibilidad, callbackadd){
                   ID_Factibilidad: isDone[1],
                   Fecha_cambio: getFormatedDateNow(),
                   Observacion: "ESTADO INICIAL",
-                  Usuario:  usrprfl.USUARIO
+                  Usuario:  usrprfl.USUARIO,
+                  empresa: usrprfl.EMPRESA
                   }
                 agregarEstadoHistoria(historial, myhistorialCb =>{
                   console.log("hecho o no el historial",myhistorialCb);
@@ -324,8 +328,10 @@ function agregarEstadoHistoria(historial,callback){
 
     .done(d =>{
       let json = JSON.parse(d);
+        console.log(json, data,"tengo esto para agregar a la hsitoria");
       console.log(json["addResults"][0].objectId);
       let arrObject = [];
+
       if(json["addResults"][0].objectId>0){
         return callback(true);
 
@@ -386,90 +392,213 @@ function agregarFact(f, callback){
     posteFactibilizador = f.factigisRotulo;
   }
 
-  var myAttributes = {
-    Rut : f.factigisRut,
-    Nombre : f.factigisNombre,
-    Apellido : f.factigisApellido,
-    Telefono : f.factigisTelefono,
-    Email: f.factigisEmail,
-    Tipo_cliente : f.factigisTipoCliente,
-    Tipo_contribuyente : f.factigisContribuyente,
-    Rotulo : f.factigisRotulo,
-    Tramo : f.factigisTramo,
-    Empalme :  f.factigisEmpalme,
-    Fase : f.factigisFase,
-    Potencia : f.factigisPotencia,
-    Capacidad_empalme : f.capacidadEmpalme,
-    Capacidad_interruptor : f.capacidadInterruptor,
-    Tiempo_empalme : f.factigisTiempoEmpalme,
-    Tipo_empalme: f.factigisTipoEmpalme,
-    Cantidad_empalme : f.factigisCantidadEmpalmes,
-    ID_Direccion : f.factigisIDDireccion,
-    Direccion: f.factigisDireccion,
-    Zona_campamentos: opcionCampamento,
-    Zona_concesion : opcionConcesion,
-    Zona_restringida : opcionRestringida,
-    Zona_transmision : opcionTransmision,
-    Zona_vialidad : opcionVialidad,
-    Potencia_calculada : f.factigisPotenciaCalculada,
-    DistRotuloMedidor: f.factigisDistRotMed,
-    DistDireccionMedidor : f.factigisDistMedDir,
-    Comuna : f.factigisComuna,
-    Alimentador: f.factigisAlimentador,
-    Idnodo : f.factigisIDNodo,
-    Estado_tramite: f.factigisEstadoTramite,
-    Tipo_factibilidad: f.factigisTipoFactibilidad,
-    Tipo_mejora : f.factigisTipoMejora,
-    Zona : f.factigisZona,
-    Origen_factibilidad : f.factigisOrigen,
-    Sed :f.factigisSed,
-    PotenciaDispSed :f.factigisPotenciaDisponibleSED,
-    Clasificacion: f.factigisClasificacion,
-    Poste_cnx_final : posteFactibilizador,
-    empresa: f.factigisEmpresa
+  //agregar niveles de coci si empalme es BT y sed es diferente a 0
+  console.log(f.factigisSed,"sed?");
+  var sedd = f.factigisSed;
+  f.coci1 = 0;
+  f.coci2 = 0;
+  f.coci3 = 0;
+  var c1 = 0;
+  var c2 = 0;
+  var c3 = 0;
+
+
+  if(sedd>0){
+    console.log("buscando nivel de coci");
+    var niv = searchNivelesCoci(sedd)
+      .then(niveles=>{
+        console.log(niveles,"tengo niveles de sed", sedd);
+          if(niveles.length>0){
+            c1 =  niveles[0].attributes.Coci1fBT;
+            c2 =  niveles[0].attributes.Coci2fBT;
+            c3 =  niveles[0].attributes.Coci3fBT;
+          }
+
+          var myAttributes = {
+            Rut : f.factigisRut,
+            Nombre : f.factigisNombre,
+            Apellido : f.factigisApellido,
+            Telefono : f.factigisTelefono,
+            Email: f.factigisEmail,
+            Tipo_cliente : f.factigisTipoCliente,
+            Tipo_contribuyente : f.factigisContribuyente,
+            Rotulo : f.factigisRotulo,
+            Tramo : f.factigisTramo,
+            Empalme :  f.factigisEmpalme,
+            Fase : f.factigisFase,
+            Potencia : f.factigisPotencia,
+            Capacidad_empalme : f.capacidadEmpalme,
+            Capacidad_interruptor : f.capacidadInterruptor,
+            Tiempo_empalme : f.factigisTiempoEmpalme,
+            Tipo_empalme: f.factigisTipoEmpalme,
+            Cantidad_empalme : f.factigisCantidadEmpalmes,
+            ID_Direccion : f.factigisIDDireccion,
+            Direccion: f.factigisDireccion,
+            Zona_campamentos: opcionCampamento,
+            Zona_concesion : opcionConcesion,
+            Zona_restringida : opcionRestringida,
+            Zona_transmision : opcionTransmision,
+            Zona_vialidad : opcionVialidad,
+            Potencia_calculada : f.factigisPotenciaCalculada,
+            DistRotuloMedidor: f.factigisDistRotMed,
+            DistDireccionMedidor : f.factigisDistMedDir,
+            Comuna : f.factigisComuna,
+            Alimentador: f.factigisAlimentador,
+            Idnodo : f.factigisIDNodo,
+            Estado_tramite: f.factigisEstadoTramite,
+            Tipo_factibilidad: f.factigisTipoFactibilidad,
+            Tipo_mejora : f.factigisTipoMejora,
+            Zona : f.factigisZona,
+            Origen_factibilidad : f.factigisOrigen,
+            Sed :f.factigisSed,
+            PotenciaDispSed :f.factigisPotenciaDisponibleSED,
+            Clasificacion: f.factigisClasificacion,
+            Poste_cnx_final : posteFactibilizador,
+            empresa: f.factigisEmpresa,
+            Coci1f: c1,
+            Coci2f: c2,
+            Coci3f: c3
+
+          }
+
+          console.log("agregando...",myAttributes);
+
+          let geox = f.factigisGeoCliente.x;
+          let geoy=  f.factigisGeoCliente.y;
+
+          const data = {
+            f: 'json',
+            adds: JSON.stringify([{ "attributes": myAttributes, geometry: {"x":geox , "y": geoy}}]),
+            token: token.read()
+          };
+
+          jQuery.ajax({
+            method: 'POST',
+            url: layers.read_factigis_addFactibilidad(),
+            dataType:'html',
+            data: data
+          })
+          .done(d =>{
+            console.log(d);
+            let json = JSON.parse(d);
+
+            let arrObject = [];
+            console.log("respuesta server",json);
+            if(json["addResults"][0].objectId>0){
+              arrObject.push(true);
+              arrObject.push(json["addResults"][0].objectId);
+              arrObject.push(myAttributes);
+              return callback(arrObject);
+            }else{
+              arrObject.push(false);
+              arrObject.push(json["addResults"][0].objectId);
+              arrObject.push([]);
+              return callback(arrObject);
+
+            }
+          })
+          .fail(f=>{
+            console.log(f,"no pase")
+            callback(false)
+          });
+
+
+      }).catch(error=>{
+        console.log(error,"errores buscando niveles de sed");
+      })
+
+  }else{
+    console.log("no se puede agregar nivel de coci por sed es 0", sedd);
+    var myAttributes = {
+      Rut : f.factigisRut,
+      Nombre : f.factigisNombre,
+      Apellido : f.factigisApellido,
+      Telefono : f.factigisTelefono,
+      Email: f.factigisEmail,
+      Tipo_cliente : f.factigisTipoCliente,
+      Tipo_contribuyente : f.factigisContribuyente,
+      Rotulo : f.factigisRotulo,
+      Tramo : f.factigisTramo,
+      Empalme :  f.factigisEmpalme,
+      Fase : f.factigisFase,
+      Potencia : f.factigisPotencia,
+      Capacidad_empalme : f.capacidadEmpalme,
+      Capacidad_interruptor : f.capacidadInterruptor,
+      Tiempo_empalme : f.factigisTiempoEmpalme,
+      Tipo_empalme: f.factigisTipoEmpalme,
+      Cantidad_empalme : f.factigisCantidadEmpalmes,
+      ID_Direccion : f.factigisIDDireccion,
+      Direccion: f.factigisDireccion,
+      Zona_campamentos: opcionCampamento,
+      Zona_concesion : opcionConcesion,
+      Zona_restringida : opcionRestringida,
+      Zona_transmision : opcionTransmision,
+      Zona_vialidad : opcionVialidad,
+      Potencia_calculada : f.factigisPotenciaCalculada,
+      DistRotuloMedidor: f.factigisDistRotMed,
+      DistDireccionMedidor : f.factigisDistMedDir,
+      Comuna : f.factigisComuna,
+      Alimentador: f.factigisAlimentador,
+      Idnodo : f.factigisIDNodo,
+      Estado_tramite: f.factigisEstadoTramite,
+      Tipo_factibilidad: f.factigisTipoFactibilidad,
+      Tipo_mejora : f.factigisTipoMejora,
+      Zona : f.factigisZona,
+      Origen_factibilidad : f.factigisOrigen,
+      Sed :f.factigisSed,
+      PotenciaDispSed :f.factigisPotenciaDisponibleSED,
+      Clasificacion: f.factigisClasificacion,
+      Poste_cnx_final : posteFactibilizador,
+      empresa: f.factigisEmpresa,
+      Coci1f: 0,
+      Coci2f: 0,
+      Coci3f: 0
+
+    }
+
+    console.log("agregando...",myAttributes);
+
+    let geox = f.factigisGeoCliente.x;
+    let geoy=  f.factigisGeoCliente.y;
+
+    const data = {
+      f: 'json',
+      adds: JSON.stringify([{ "attributes": myAttributes, geometry: {"x":geox , "y": geoy}}]),
+      token: token.read()
+    };
+
+    jQuery.ajax({
+      method: 'POST',
+      url: layers.read_factigis_addFactibilidad(),
+      dataType:'html',
+      data: data
+    })
+    .done(d =>{
+      console.log(d);
+      let json = JSON.parse(d);
+
+      let arrObject = [];
+      console.log("respuesta server",json);
+      if(json["addResults"][0].objectId>0){
+        arrObject.push(true);
+        arrObject.push(json["addResults"][0].objectId);
+        arrObject.push(myAttributes);
+        return callback(arrObject);
+      }else{
+        arrObject.push(false);
+        arrObject.push(json["addResults"][0].objectId);
+        arrObject.push([]);
+        return callback(arrObject);
+
+      }
+    })
+    .fail(f=>{
+      console.log(f,"no pase")
+      callback(false)
+    });
 
   }
 
-  console.log("agregando...",myAttributes);
-
-  let geox = f.factigisGeoCliente.x;
-  let geoy=  f.factigisGeoCliente.y;
-
-  const data = {
-    f: 'json',
-    adds: JSON.stringify([{ "attributes": myAttributes, geometry: {"x":geox , "y": geoy}}]),
-    token: token.read()
-  };
-
-  jQuery.ajax({
-    method: 'POST',
-    url: layers.read_factigis_addFactibilidad(),
-    dataType:'html',
-    data: data
-  })
-  .done(d =>{
-    console.log(d);
-    let json = JSON.parse(d);
-
-    let arrObject = [];
-    console.log("respuesta server",json);
-    if(json["addResults"][0].objectId>0){
-      arrObject.push(true);
-      arrObject.push(json["addResults"][0].objectId);
-      arrObject.push(myAttributes);
-      return callback(arrObject);
-    }else{
-      arrObject.push(false);
-      arrObject.push(json["addResults"][0].objectId);
-      arrObject.push([]);
-      return callback(arrObject);
-
-    }
-  })
-  .fail(f=>{
-    console.log(f,"no pase")
-    callback(false)
-  });
 
 
 }
@@ -518,91 +647,208 @@ function agregarFactEspecial(f, callback){
     posteFactibilizador = f.factigisRotulo;
   }
 
+  //agregar niveles de coci si empalme es BT y sed es diferente a 0
+  console.log(f.factigisSed,"sed?");
+  var sedd = f.factigisSed;
+  f.coci1 = 0;
+  f.coci2 = 0;
+  f.coci3 = 0;
 
-  var myAttributes = {
-    Rut : f.factigisRut,
-    Nombre : f.factigisNombre,
-    Apellido : f.factigisApellido,
-    Telefono : f.factigisTelefono,
-    Email: f.factigisEmail,
-    Tipo_cliente : f.factigisTipoCliente,
-    Tipo_contribuyente : f.factigisContribuyente,
-    Rotulo : f.factigisRotulo,
-    Tramo : f.factigisTramo,
-    Empalme :  f.factigisEmpalme,
-    Fase : f.factigisFase,
-    Potencia : f.factigisPotencia,
-    Capacidad_empalme : f.capacidadEmpalme,
-    Capacidad_interruptor : f.capacidadInterruptor,
-    Tiempo_empalme : f.factigisTiempoEmpalme,
-    Tipo_empalme: f.factigisTipoEmpalme,
-    Cantidad_empalme : f.factigisCantidadEmpalmes,
-    ID_Direccion : f.factigisIDDireccion,
-    Direccion: f.factigisDireccion,
-    Zona_campamentos: opcionCampamento,
-    Zona_concesion : opcionConcesion,
-    Zona_restringida : opcionRestringida,
-    Zona_transmision : opcionTransmision,
-    Zona_vialidad : opcionVialidad,
-    Potencia_calculada : f.factigisPotenciaCalculada,
-    DistRotuloMedidor: f.factigisDistRotMed,
-    DistDireccionMedidor : f.factigisDistMedDir,
-    Comuna : f.factigisComuna,
-    Alimentador: f.factigisAlimentador,
-    Idnodo : f.factigisIDNodo,
-    Estado_tramite: f.factigisEstadoTramite,
-    Tipo_factibilidad: f.factigisTipoFactibilidad,
-    Tipo_mejora : f.factigisTipoMejora,
-    Zona : f.factigisZona,
-    Origen_factibilidad : f.factigisOrigen,
-    Sed :f.factigisSed,
-    PotenciaDispSed :f.factigisPotenciaDisponibleSED,
-    Clasificacion: f.factigisClasificacion,
-    Poste_cnx_final : posteFactibilizador,
-    empresa: f.factigisEmpresa
+  var c1 = 0;
+  var c2 = 0;
+  var c3 = 0;
 
+  if(sedd>0){
+    console.log("buscando nivel de coci");
+    var niv = searchNivelesCoci(sedd)
+      .then(niveles=>{
+        if(niveles.length>0){
+          c1 = niveles[0].attributes.Coci1fBT;
+          c2 = niveles[0].attributes.Coci2fBT;
+          c3 = niveles[0].attributes.Coci3fBT;
+        }
+
+        console.log(niveles,"tengo niveles de sed", sedd);
+        var myAttributes = {
+          Rut : f.factigisRut,
+          Nombre : f.factigisNombre,
+          Apellido : f.factigisApellido,
+          Telefono : f.factigisTelefono,
+          Email: f.factigisEmail,
+          Tipo_cliente : f.factigisTipoCliente,
+          Tipo_contribuyente : f.factigisContribuyente,
+          Rotulo : f.factigisRotulo,
+          Tramo : f.factigisTramo,
+          Empalme :  f.factigisEmpalme,
+          Fase : f.factigisFase,
+          Potencia : f.factigisPotencia,
+          Capacidad_empalme : f.capacidadEmpalme,
+          Capacidad_interruptor : f.capacidadInterruptor,
+          Tiempo_empalme : f.factigisTiempoEmpalme,
+          Tipo_empalme: f.factigisTipoEmpalme,
+          Cantidad_empalme : f.factigisCantidadEmpalmes,
+          ID_Direccion : f.factigisIDDireccion,
+          Direccion: f.factigisDireccion,
+          Zona_campamentos: opcionCampamento,
+          Zona_concesion : opcionConcesion,
+          Zona_restringida : opcionRestringida,
+          Zona_transmision : opcionTransmision,
+          Zona_vialidad : opcionVialidad,
+          Potencia_calculada : f.factigisPotenciaCalculada,
+          DistRotuloMedidor: f.factigisDistRotMed,
+          DistDireccionMedidor : f.factigisDistMedDir,
+          Comuna : f.factigisComuna,
+          Alimentador: f.factigisAlimentador,
+          Idnodo : f.factigisIDNodo,
+          Estado_tramite: f.factigisEstadoTramite,
+          Tipo_factibilidad: f.factigisTipoFactibilidad,
+          Tipo_mejora : f.factigisTipoMejora,
+          Zona : f.factigisZona,
+          Origen_factibilidad : f.factigisOrigen,
+          Sed :f.factigisSed,
+          PotenciaDispSed :f.factigisPotenciaDisponibleSED,
+          Clasificacion: f.factigisClasificacion,
+          Poste_cnx_final : posteFactibilizador,
+          empresa: f.factigisEmpresa,
+          Coci1f: c1,
+          Coci2f: c2,
+          Coci3f: c3
+
+        }
+
+        console.log("agregando especial...",myAttributes);
+
+        let geox = f.factigisGeoCliente.x;
+        let geoy=  f.factigisGeoCliente.y;
+
+        const data = {
+          f: 'json',
+          adds: JSON.stringify([{ "attributes": myAttributes, geometry: {"x":geox , "y": geoy}}]),
+          token: token.read()
+        };
+
+        jQuery.ajax({
+          method: 'POST',
+          url: layers.read_factigis_addFactibilidad(),
+          dataType:'html',
+          data: data
+        })
+        .done(d =>{
+          let json = JSON.parse(d);
+          console.log("respuesta server 2",json);
+          let arrObject = [];
+
+          if(json["addResults"][0].objectId>0){
+            arrObject.push(true);
+            arrObject.push(json["addResults"][0].objectId);
+            arrObject.push(myAttributes);
+            return callback(arrObject);
+          }else{
+            arrObject.push(false);
+            arrObject.push(json["addResults"][0].objectId);
+            arrObject.push([]);
+            return callback(arrObject);
+
+          }
+        })
+        .fail(f=>{
+          console.log(f,"no pase")
+          callback(false)
+        });
+
+      }).catch(error=>{
+          console.log(error,"errores buscando niveles de sed");
+      });
+
+  }else{
+    console.log("no se puede encontrar nivel coci fact especial");
+      var myAttributes = {
+        Rut : f.factigisRut,
+        Nombre : f.factigisNombre,
+        Apellido : f.factigisApellido,
+        Telefono : f.factigisTelefono,
+        Email: f.factigisEmail,
+        Tipo_cliente : f.factigisTipoCliente,
+        Tipo_contribuyente : f.factigisContribuyente,
+        Rotulo : f.factigisRotulo,
+        Tramo : f.factigisTramo,
+        Empalme :  f.factigisEmpalme,
+        Fase : f.factigisFase,
+        Potencia : f.factigisPotencia,
+        Capacidad_empalme : f.capacidadEmpalme,
+        Capacidad_interruptor : f.capacidadInterruptor,
+        Tiempo_empalme : f.factigisTiempoEmpalme,
+        Tipo_empalme: f.factigisTipoEmpalme,
+        Cantidad_empalme : f.factigisCantidadEmpalmes,
+        ID_Direccion : f.factigisIDDireccion,
+        Direccion: f.factigisDireccion,
+        Zona_campamentos: opcionCampamento,
+        Zona_concesion : opcionConcesion,
+        Zona_restringida : opcionRestringida,
+        Zona_transmision : opcionTransmision,
+        Zona_vialidad : opcionVialidad,
+        Potencia_calculada : f.factigisPotenciaCalculada,
+        DistRotuloMedidor: f.factigisDistRotMed,
+        DistDireccionMedidor : f.factigisDistMedDir,
+        Comuna : f.factigisComuna,
+        Alimentador: f.factigisAlimentador,
+        Idnodo : f.factigisIDNodo,
+        Estado_tramite: f.factigisEstadoTramite,
+        Tipo_factibilidad: f.factigisTipoFactibilidad,
+        Tipo_mejora : f.factigisTipoMejora,
+        Zona : f.factigisZona,
+        Origen_factibilidad : f.factigisOrigen,
+        Sed :f.factigisSed,
+        PotenciaDispSed :f.factigisPotenciaDisponibleSED,
+        Clasificacion: f.factigisClasificacion,
+        Poste_cnx_final : posteFactibilizador,
+        empresa: f.factigisEmpresa,
+        Coci1f: 0,
+        Coci2f: 0,
+        Coci3f: 0
+
+      }
+
+      console.log("agregando especial...",myAttributes);
+
+      let geox = f.factigisGeoCliente.x;
+      let geoy=  f.factigisGeoCliente.y;
+
+      const data = {
+        f: 'json',
+        adds: JSON.stringify([{ "attributes": myAttributes, geometry: {"x":geox , "y": geoy}}]),
+        token: token.read()
+      };
+
+      jQuery.ajax({
+        method: 'POST',
+        url: layers.read_factigis_addFactibilidad(),
+        dataType:'html',
+        data: data
+      })
+      .done(d =>{
+        let json = JSON.parse(d);
+        console.log("respuesta server 2",json);
+        let arrObject = [];
+
+        if(json["addResults"][0].objectId>0){
+          arrObject.push(true);
+          arrObject.push(json["addResults"][0].objectId);
+          arrObject.push(myAttributes);
+          return callback(arrObject);
+        }else{
+          arrObject.push(false);
+          arrObject.push(json["addResults"][0].objectId);
+          arrObject.push([]);
+          return callback(arrObject);
+
+        }
+      })
+      .fail(f=>{
+        console.log(f,"no pase")
+        callback(false)
+      });
   }
-
-  console.log("agregando especial...",myAttributes);
-
-  let geox = f.factigisGeoCliente.x;
-  let geoy=  f.factigisGeoCliente.y;
-
-  const data = {
-    f: 'json',
-    adds: JSON.stringify([{ "attributes": myAttributes, geometry: {"x":geox , "y": geoy}}]),
-    token: token.read()
-  };
-
-  jQuery.ajax({
-    method: 'POST',
-    url: layers.read_factigis_addFactibilidad(),
-    dataType:'html',
-    data: data
-  })
-  .done(d =>{
-    let json = JSON.parse(d);
-    console.log("respuesta server 2",json);
-    let arrObject = [];
-
-    if(json["addResults"][0].objectId>0){
-      arrObject.push(true);
-      arrObject.push(json["addResults"][0].objectId);
-      arrObject.push(myAttributes);
-      return callback(arrObject);
-    }else{
-      arrObject.push(false);
-      arrObject.push(json["addResults"][0].objectId);
-      arrObject.push([]);
-      return callback(arrObject);
-
-    }
-  })
-  .fail(f=>{
-    console.log(f,"no pase")
-    callback(false)
-  });
-
 
 }
 
@@ -761,7 +1007,8 @@ function factigis_addNuevaFactibilidad_especial(factibilidad, callbackadd){
                           ID_Factibilidad: isDone[1],
                           Fecha_cambio: getFormatedDateNow(),
                           Observacion: "ESTADO INICIAL",
-                          Usuario:  usrprfl.USUARIO
+                          Usuario:  usrprfl.USUARIO,
+                          empresa:  usrprfl.EMPRESA
                           }
                         agregarEstadoHistoria(historial, myhistorialCb =>{
                           console.log("hecho o no el historial",myhistorialCb);
@@ -880,7 +1127,8 @@ function factigis_addNuevaFactibilidad_especial(factibilidad, callbackadd){
                         ID_Factibilidad: isDone[1],
                         Fecha_cambio: getFormatedDateNow(),
                         Observacion: "ESTADO INICIAL",
-                        Usuario:  usrprfl.USUARIO
+                        Usuario:  usrprfl.USUARIO,
+                        empresa:  usrprfl.EMPRESA
                       }
                       agregarEstadoHistoria(historial, myhistorialCb =>{
                         console.log("hecho o no el historial",myhistorialCb);

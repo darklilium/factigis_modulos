@@ -94,7 +94,7 @@ div strong { font-size: 12px; }
 
 .factigis_row1 { display: flex; flex-direction: column; margin-left: 1em; }
 
-.factigis_row2 { display: flex; flex-direction: column; width: 30%; margin-left: 1em; }
+.factigis_row2 { display: flex; flex-direction: column; width: 20%; margin-left: 1em; }
 
 .factigis_row3 { display: flex; flex-direction: column; justify-content: flex-end; margin-left: 1em; }
 
@@ -103,6 +103,8 @@ div strong { font-size: 12px; }
 .factigis_bo_txt { height: 36px; margin-right: 1em; }
 
 .factigis_obsText { width: 50%; }
+
+.DayPickerInput { Z-INDEX: 5; }
 
 a { color: #da291c; }
 
@@ -199,6 +201,22 @@ h8 { font-size: 12px; }
 .griddle td.selected { background-color: #d0f3eb; color: #333; font-size: smaller; }
 
 .selected td { background-color: #91b6dc !important; font-size: smaller; }
+
+.factiCert_wrapper { display: flex; flex-direction: row; }
+
+.factiCert_left, .factiCert_right { display: flex; flex-direction: column; width: 40%; }
+
+.factiCert_left { align-items: flex-end; justify-content: center; }
+
+.factiCert_right { justify-content: right; width: 30%; }
+
+.factiCert_h8 { height: 3em; display: flex; align-items: center; align-content: center; }
+
+.input_cert { border: #e4dcdc; border-style: solid; border-radius: 6px; height: 36px; }
+
+.factigisCert_wrapperButtons { display: flex; padding: 1em; }
+
+.factiCert_btn { width: 30%; margin: 0em 0.5em; }
 
 .griddle-container { border: 1px solid #DDD; }
 
@@ -310,3 +328,5 @@ h8 { font-size: 12px; }
 .DayPickerInput-OverlayWrapper { position: relative; }
 
 .DayPickerInput-Overlay { left: 0; z-index: 1; position: absolute; background: white; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); }
+
+.factigis_row2 { width: 20%; }

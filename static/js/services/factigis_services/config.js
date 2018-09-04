@@ -1,4 +1,4 @@
-//v0.9
+//v1.7.2d
 
 //DEV MODE
 
@@ -14,8 +14,7 @@ const env = {
   SSL: 'https://'
 }
 
-
-//TEST MODE - INTERNO
+//TEST MODE - INTERNO (pruebas factigis)
 /*
 const env = {
   ROOT: "css/",
@@ -26,7 +25,7 @@ const env = {
   SAVEAPPLICATIONMODULE: "FACTIGIS_DESA",
   SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_DESA',
   BUILDFOR: "EXTERNA",
-  SSL: 'http://'
+  SSL: 'https://'
 }
 */
 /*

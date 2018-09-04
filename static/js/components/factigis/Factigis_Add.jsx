@@ -202,8 +202,12 @@ class Factigis_Add extends React.Component {
       factigis_selectedValueTipoPotencia: 0,
 
       //2.1.2018: agregando multimempresa
-      factigis_empresa: ''
+      factigis_empresa: '',
 
+      //17.7.2018: se agrega nivales de coci1, 2 y 3
+      factigis_coci1: '',
+      factigis_coci2: '',
+      factigis_coci3: ''
 
     }
   }
@@ -1480,7 +1484,10 @@ class Factigis_Add extends React.Component {
       factiTipoFactibilidad: 'FACTIBILIDAD DIRECTA',
       factigis_alimentador: '',
       factigisIDNodo: '',
-      factigisZona: ''
+      factigisZona: '',
+      factigis_coci1: '',
+      factigis_coci2: '',
+      factigis_coci3: ''
     });
 
     $('.factigisRut').css('border-color','initial').css('border-style', 'groove');

@@ -231,7 +231,8 @@ margin-left: 1em;
 .factigis_row2{
   display: flex;
     flex-direction: column;
-    width: 30%;
+    //width: 30%;
+    width: 20%;
     margin-left: 1em;
 }
 
@@ -248,4 +249,8 @@ margin-left: 1em;
 
 .factigis_obsText{
   width: 50%;
+}
+
+.DayPickerInput{
+  Z-INDEX: 5;
 }

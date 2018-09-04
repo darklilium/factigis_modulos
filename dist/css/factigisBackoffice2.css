@@ -120,6 +120,22 @@ h8 { font-size: 12px; }
 
 .selected td { background-color: #91b6dc !important; font-size: smaller; }
 
+.factiCert_wrapper { display: flex; flex-direction: row; }
+
+.factiCert_left, .factiCert_right { display: flex; flex-direction: column; width: 40%; }
+
+.factiCert_left { align-items: flex-end; justify-content: center; }
+
+.factiCert_right { justify-content: right; width: 30%; }
+
+.factiCert_h8 { height: 3em; display: flex; align-items: center; align-content: center; }
+
+.input_cert { border: #e4dcdc; border-style: solid; border-radius: 6px; height: 36px; }
+
+.factigisCert_wrapperButtons { display: flex; padding: 1em; }
+
+.factiCert_btn { width: 30%; margin: 0em 0.5em; }
+
 .griddle-container { border: 1px solid #DDD; }
 
 .griddle .top-section { clear: both; display: table; width: 100%; }

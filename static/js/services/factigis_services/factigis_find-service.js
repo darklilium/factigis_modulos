@@ -267,7 +267,7 @@ function factigis_findFolio(folio, callback){
 }
 
 function factigis_findRotuloByNumber(numero, tipo, callback){
-
+  console.log(numero,tipo,layers.read_rotulos2());
   //tipo_nodo ='ele!camara' and rotulo='B8380'
   var qTaskInterruptions = new esri.tasks.QueryTask(layers.read_rotulos2());
   var qInterruptions = new esri.tasks.Query();

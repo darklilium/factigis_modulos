@@ -25,7 +25,9 @@ import env from '../../services/factigis_services/config';
 import {Button} from 'react-toolbox/lib/button';
 import {formatDateWithoutComma} from '../../utils/milliSecondsToDate';
 //27.6.2018: agregando fact.sgo.cert.
-import {factigis_findSGOCert} from '../../services/factigis_services/factigis_searchSGOCertificate';
+import {factigis_findSGOCert, searchNivelesCoci} from '../../services/factigis_services/factigis_searchSGOCertificate';
+//13.7.2018: agregando servicio FACTIBILIDAD
+import {saveSGOCertificate, deleteSGOCertificate} from '../../services/factigis_services/factigis_certificadoSGO';
 
 function createDataObject(){
   return {
@@ -112,6 +114,19 @@ const customStylesFormularioCert = {
   }
 };
 
+const customStylesFormularioCert2 = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
+    transform             : 'translate(-50%, -50%)',
+    width                 : '50%',
+    height                : '30%',
+    textAlign             : 'center'
+  }
+}
 var tipoEstado = [
 	{ value: 'EN TRAMITE', label: 'EN TRAMITE' },
 	{ value: 'CERRADA', label: 'CERRADA' }
@@ -234,11 +249,11 @@ class FactigisSGO extends React.Component {
       facB_formularioObrasCrear: true,
       facB_formularioObrasAvailable: 'Elija una factibilidad',
       //Certificado SGO
-      factiCert_diasVialidad: '',
-      factiCert_diasPlazo: '',
-      factiCert_diasMunicipales: '',
-      factiCert_diasTerceros: '',
-      factiCert_diasCalculados: '',
+      factiCert_diasVialidad: 0,
+      factiCert_diasPlazo: 0,
+      factiCert_diasMunicipales: 0,
+      factiCert_diasTerceros: 0,
+      factiCert_diasCalculados: 0,
       factiCert_costoCompania: '',
       factiCert_detalle1: detalle1,
       factiCert_detalle2: [],
@@ -250,12 +265,20 @@ class FactigisSGO extends React.Component {
 
       //disabled selects
       factiCert_detalle2_disabled: true,
-      factiCert_detalle3_disabled: true
+      factiCert_detalle3_disabled: true,
+      facB_certificadoNumero: '',
+
+      //17.7.2018: agregar niveles de cortocircuito (se actualiza fact. principal)
+      facti_coci1: '',
+      facti_coci2: '',
+      facti_coci3: '',
+      factiCert_costoCompaniaFormatted: ''
     }
     this.clearFields = this.clearFields.bind(this);
     this.loadDataa = this.loadDataa.bind(this);
     this.clearFieldsAttr = this.clearFieldsAttr.bind(this);
-    this.closeModalFormulario = this.closeModalFormulario.bind(this)
+    this.closeModalFormulario = this.closeModalFormulario.bind(this);
+
   }
 
   loadDataa(){
@@ -308,7 +331,10 @@ class FactigisSGO extends React.Component {
           'TiposFase':  result.attributes['Tipo_fase'],
           'Punto Conexion': String(result.attributes['Poste_cnx_final']),
           'Fecha Creacion': formatDateWithoutComma(result.attributes['created_date']),
-          'Comuna': result.attributes['Comuna']
+          'Comuna': result.attributes['Comuna'],
+          'Coci1': result.attributes['Coci1f'],
+          'Coci2': result.attributes['Coci2f'],
+          'Coci3': result.attributes['Coci3f']
         }
         return theData;
         console.log(loadData);
@@ -366,7 +392,10 @@ class FactigisSGO extends React.Component {
       facB_puntoConexion:  newState[0]['Punto Conexion'],
       btnGuardarState: false,
       factB_fechaCreacion: newState[0]['Fecha Creacion'],
-      factB_comuna: newState[0]['Comuna']
+      factB_comuna: newState[0]['Comuna'],
+      facB_coci1: newState[0]['Coci1'],
+      facB_coci2: newState[0]['Coci2'],
+      facB_coci3: newState[0]['Coci3']
     });
 
      //query for getting the SED name and kva.
@@ -412,7 +441,21 @@ class FactigisSGO extends React.Component {
       console.log(sgoCertificate, "found?");
       if(sgoCertificate.length>0){
         //Si tiene certificado , ver el contenido en la ventana.
-        this.setState({facB_formularioObrasAvailable: 'Sí', facB_formularioObrasVer: false, facB_formularioObrasCrear: true})
+        this.setState({facB_formularioObrasAvailable: 'Sí', facB_formularioObrasVer: false, facB_formularioObrasCrear: true});
+        //set los valores para mostrar en modal (VER)
+        this.setState({
+          factiCert_diasPlazo: sgoCertificate[0].attributes.DIAS_PLAZO,
+          factiCert_diasVialidad: sgoCertificate[0].attributes.DIAS_VIALIDAD,
+          factiCert_diasMunicipales: sgoCertificate[0].attributes.DIAS_MUNICIPALES,
+          factiCert_diasTerceros: sgoCertificate[0].attributes.DIAS_TERCEROS,
+          factiCert_diasCalculados: sgoCertificate[0].attributes.TOTAL_DIAS_CALCULADO,
+          factiCert_costoCompania: new Intl.NumberFormat("es-CLP").format(sgoCertificate[0].attributes.COSTO_COMPANIA),
+          factiCert_detalle1:sgoCertificate[0].attributes.DETALLE1,
+          factiCert_detalle2:sgoCertificate[0].attributes.DETALLE2,
+          factiCert_detalle3:sgoCertificate[0].attributes.DETALLE3,
+          factiCert_observacion:sgoCertificate[0].attributes.OBSERVACION,
+          facB_certificadoNumero: sgoCertificate[0].attributes.OBJECTID
+        })
 
       }else{
         //Si no existe certificado, crear uno nuevo.
@@ -422,6 +465,16 @@ class FactigisSGO extends React.Component {
           if(newState[0]['Tipo Empalme']=='BT'){
             this.setState({facB_formularioObrasCrear: false})
             //Se crea para BT
+            //SE LIMPIAN LOS CAMPOS
+            this.setState({
+              factiCert_diasPlazo: 0,
+              factiCert_diasVialidad: 0,
+              factiCert_diasMunicipales: 0,
+              factiCert_diasTerceros: 0,
+              factiCert_diasCalculados: 0,
+              factiCert_costoCompania: 0,
+              factiCert_observacion: ""
+            })
           }else{
             //Se crea para MT
               this.setState({facB_formularioObrasCrear: false})
@@ -542,7 +595,7 @@ class FactigisSGO extends React.Component {
 
   }
 
-  onChange2(e){console.log("h2",e);this.setState({cbMejoraValue: e});}
+  onChange2(e){this.setState({cbMejoraValue: e});}
 
 
   onClick(e){
@@ -561,6 +614,22 @@ class FactigisSGO extends React.Component {
       "Estado_tramite": this.state.cbEstadoValue,
       "Tipo_mejora": this.state.cbMejoraValue
     }
+
+    if(this.state.cbMejoraValue=='VYS'){
+      console.log("Eliminando formulario ", this.state.facB_folio);
+      var del = deleteSGOCertificate(this.state.facB_certificadoNumero, token.read())
+      .then(deleted=>{
+        console.log(deleted,"hola en borrado para vys");
+        //this.setState({ modalStatusCert: 'Certificado Eliminado', openModalOperation: true});
+      }).catch(error=>{
+        console.log(error,"hola en error");
+        //this.setState({ modalStatusCert: 'Error al eliminar el certificado. Intente nuevamente', openModalOperation: true});
+      })
+
+    }else{
+      console.log("no hacer nada, continue :)");
+    }
+
 
     const data = {
       f: 'json',
@@ -588,13 +657,16 @@ class FactigisSGO extends React.Component {
               ID_Factibilidad: myDataUpdate["OBJECTID"],
               Fecha_cambio: getFormatedDate(),
               Observacion: this.state.facb_observaciones,
-              Usuario:  usrprfl.USUARIO
+              Usuario:  usrprfl.USUARIO,
+              empresa:  usrprfl.EMPRESA
               }
+              console.log(historial,"atributos");
             agregarEstadoHistoria(historial, myhistorialCb =>{
               if(myhistorialCb){
+                  this.clearFields();
                   this.setState({open: true, modalStatus: 'Factibilidad '+ this.state.facB_folio+ ' modificada.'});
                   $("#iframeloadingBO").hide();
-                  this.clearFields();
+
               }else{
                   this.setState({open: true, modalStatus: 'Factibilidad '+ this.state.facB_folio+ ' no ha podido ser modificada.'});
                   $("#iframeloadingBO").hide();
@@ -617,6 +689,7 @@ class FactigisSGO extends React.Component {
           this.setState({open: true, modalStatus: 'No se ha podido modificar la factibilidad. Trate de nuevo.'});
             $("#iframeloadingBO").hide();
     });
+
   }
 
   onChangeObs(e){console.log(e.currentTarget.value.length); this.setState({facb_observaciones:  e.currentTarget.value });}
@@ -629,9 +702,9 @@ class FactigisSGO extends React.Component {
     let mapp = mymap.getMap();
     mapp.graphics.clear();
     this.setState({
-    facb_observaciones: '',
+    /*facb_observaciones: '',
 
-    zonaTitle: '',
+    //zonaTitle: '',
     opcionesEstado: tipoEstado,
     opcionesMejora: [],
     cbEstadoValue: '',
@@ -678,6 +751,95 @@ class FactigisSGO extends React.Component {
     togglePoste: 'OFF',
     btnPoste: '',
     factB_comuna: ''
+    */
+    facb_observaciones: '',
+    open: false,
+    modalStatus: '',
+
+    opcionesEstado: tipoEstado,
+    opcionesMejora: [],
+    cbEstadoValue: '',
+    cbMejoraValue: '',
+    loadData: [],
+    facB_rut: '',
+    facB_folio: '',
+    facB_nombre: '',
+    facB_apellido: '',
+    facB_telefono: '',
+    facB_email: '',
+    facB_tipoCliente: '',
+    facB_tipoContribuyente: '',
+    facB_tipoFactibilidad: '',
+    facB_tipoMejora: '',
+    facB_estadoTramite: '',
+    facB_origenFactibilidad: '',
+    facB_rotulo: '',
+    facB_direccion: '',
+    facB_tipoBTMT: '',
+    facB_tramo: '',
+    facB_sed: '',
+    facB_tipoEmpalme: '',
+    facB_fase: '',
+    facB_potencia: '',
+    facB_tiempoEmpalme: '',
+    facB_cantidadEmpalme: '',
+    facB_potenciaSolicitada: '',
+    facB_potenciaDisponible: '',
+    facB_potenciaCalculada: '',
+    facB_zona: '',
+    facB_concesion: '',
+    facB_restringida: '',
+    facB_vialidad: '',
+    facB_campamento: '',
+    facB_transmision: '',
+    factB_distanciaRM: '',
+    factB_distanciaDM: '',
+    facB_clasificacion: '',
+    factB_comuna: '',
+
+
+    //dynamic query
+    facB_sedNombre: '',
+    facB_sedKVA: '',
+    facB_rotuloPropiedad: '',
+    themap: '',
+    togglePoste: 'OFF',
+    btnPoste: '',
+    rotuloFinal: '',
+    btnGuardarState: true,
+    fases: [],
+    faseSelected: '',
+    facB_tiposFase: '',
+    facB_puntoConexion:'',
+
+    //28.05.2018: formulario obras adicionales:
+    openFormularioVer: false,
+    openFormularioCrear: false,
+    facB_formularioObrasVer: true,
+    facB_formularioObrasCrear: true,
+    facB_formularioObrasAvailable: 'Elija una factibilidad',
+    //Certificado SGO
+    factiCert_diasVialidad: 0,
+    factiCert_diasPlazo: 0,
+    factiCert_diasMunicipales: 0,
+    factiCert_diasTerceros: 0,
+    factiCert_diasCalculados: 0,
+    factiCert_costoCompania: 0,
+    factiCert_detalle1: detalle1,
+    factiCert_detalle2: [],
+    factiCert_detalle3: [],
+    factiCert_observacion: '',
+
+    openModalOperation: false,
+    modalStatusCert: '',
+
+    //disabled selects
+    factiCert_detalle2_disabled: true,
+    factiCert_detalle3_disabled: true,
+    facB_certificadoNumero: '',
+    facB_coci1: '',
+    facB_coci2: '',
+    facB_coci3: ''
     });
   }
 
@@ -686,7 +848,12 @@ class FactigisSGO extends React.Component {
       facB_tiposFase: this.state.faseSelected,
       facB_puntoConexion: this.state.rotuloFinal,
       faseSelected: '',
-      rotuloFinal: ''
+      rotuloFinal: '',
+      factiCert_costoCompaniaFormatted: '',
+      factiCert_detalle1: '',
+      factiCert_detalle2: '',
+      factiCert_detalle3: ''
+
 
     });
   }
@@ -779,11 +946,21 @@ class FactigisSGO extends React.Component {
     console.log(e,"form");
 
     if(e=='crear'){
-      this.setState({openFormularioCrear: true})
+      this.setState({openFormularioCrear: true, factiCert_detalle1: detalle1,
+      factiCert_detalle2: [],
+      factiCert_detalle3: []})
+
+      var n = searchNivelesCoci(this.state.facB_sed)
+      .then(niveles=>{
+        console.log(niveles,"niveles coci");
+      }).catch(error=>{
+        console.log(error, "niveles error coci");
+      });
+
     }
 
     if(e=='ver'){
-      this.setState({openFormularioVer: true})
+      this.setState({openFormularioVer: true});
     }
 
   }
@@ -798,61 +975,128 @@ class FactigisSGO extends React.Component {
     }
 
     if(e=='guardarCertificado'){
-      console.log("guardando certificado:",
-      this.state.factiCert_diasVialidad,
-        this.state.factiCert_diasPlazo,
-        this.state.factiCert_diasMunicipales,
-        this.state.factiCert_diasTerceros,
-        this.state.factiCert_diasCalculados,
-        this.state.factiCert_costoCompania,
-        this.state.factiCert_detalle1,
-        this.state.factiCert_detalle2,
-        this.state.factiCert_detalle3,
-        this.state.factiCert_observacion
-    );
-        this.setState({openFormularioCrear: false, modalStatusCert: 'Certificado Creado', openModalOperation: true});
+      let prof = cookieHandler.get('usrprfl');
+      console.log(this.state.factiCert_detalle2Value, this.state.factiCert_detalle3Value, this.state.factiCert_observacion);
+      var obj1 = {
+        ID_FACTIBILIDAD : this.state.facB_folio,
+        DIAS_PLAZO : this.state.factiCert_diasPlazo,
+        DIAS_VIALIDAD : this.state.factiCert_diasVialidad,
+        DIAS_MUNICIPALES : this.state.factiCert_diasMunicipales,
+        DIAS_TERCEROS : this.state.factiCert_diasTerceros,
+        TOTAL_DIAS_CALCULADO : this.state.factiCert_diasCalculados,
+        COSTO_COMPANIA : parseFloat(this.state.factiCert_costoCompania),
+        DETALLE1 : this.state.factiCert_detalle1Value,
+        DETALLE2 : (typeof this.state.factiCert_detalle2Value == 'undefined' ) ? "" : this.state.factiCert_detalle2Value,
+        DETALLE3 : (typeof this.state.factiCert_detalle3Value == 'undefined' ) ? "" : this.state.factiCert_detalle3Value,
+        OBSERVACION : (this.state.factiCert_observacion == "" ) ? "" : (this.state.factiCert_observacion),
+        EMPRESA : prof.EMPRESA
+      }
+
+      var objCheck = {
+        ID_FACTIBILIDAD : this.state.facB_folio,
+        DIAS_PLAZO : this.state.factiCert_diasPlazo,
+        DIAS_VIALIDAD : this.state.factiCert_diasVialidad,
+        DIAS_MUNICIPALES : this.state.factiCert_diasMunicipales,
+        DIAS_TERCEROS : this.state.factiCert_diasTerceros,
+        TOTAL_DIAS_CALCULADO : this.state.factiCert_diasCalculados,
+        COSTO_COMPANIA : this.state.factiCert_costoCompania,
+        DETALLE1 : this.state.factiCert_detalle1Value,
+        EMPRESA : prof.EMPRESA
+      }
+
+      //Check si hay algun atributo no completado:
+      const isFalsy = value => ["undefined", "", null].includes(value);
+      const check = obj => Object.values(obj).map(isFalsy).includes(true);
+      if(check(objCheck)){
+          console.log("Hay campos que faltan");
+          this.setState({openModalOperation: false, modalStatusCert: 'Hay campos que faltan', openModalOperation: true});
+      }else{
+          console.log("guardando certificado:",obj1);
+          var certificado = saveSGOCertificate(obj1)
+          .then(saved=>{
+              console.log(saved,"guardado");
+              this.setState({openModalOperation: false, modalStatusCert: 'Certificado Creado', openModalOperation: true});
+          }).catch(error=>{
+            console.log(error,"no guardado");
+              this.setState({openModalOperation: false, modalStatusCert: 'El certificado no ha sido creado. Intente nuevamente.', openModalOperation: true});
+          });
+
+
+      }
     }
 
     if(e=='eliminar'){
       console.log("Eliminando formulario ", this.state.facB_folio);
-        this.setState({openFormularioCrear: false, modalStatusCert: 'Certificado Eliminado', openModalOperation: true});
+      var del = deleteSGOCertificate(this.state.facB_certificadoNumero, token.read())
+      .then(deleted=>{
+          console.log(deleted,"hola en borrado");
+        this.setState({ modalStatusCert: 'Certificado Eliminado', openModalOperation: true});
+      }).catch(error=>{
+        console.log(error,"hola en error");
+        this.setState({ modalStatusCert: 'Error al eliminar el certificado. Intente nuevamente', openModalOperation: true});
+      })
+
     }
 
     if(e=='closeModalOperation'){
-        this.setState({openModalOperation: false});
+        this.setState({openModalOperation: false, openFormularioCrear: false, facB_formularioObrasVer: true, facB_formularioObrasCrear: true});
+        this.clearFields();
     }
 
   }
 
   onChangeCert(e){
-    console.log(e.currentTarget.value, e.currentTarget.id);
+    var totalCalculado = 0;
+    var valorFormateado = 0;
+
+    console.log(e.currentTarget.value, e.currentTarget.id, "1");
     switch (e.currentTarget.id) {
       case 'diasPlazo':
-        this.setState({factiCert_diasPlazo: e.currentTarget.value})
+        this.setState({
+          factiCert_diasPlazo: e.currentTarget.value,
+        });
+        totalCalculado = parseInt(this.state.factiCert_diasVialidad) +
+        parseInt(this.state.factiCert_diasMunicipales) +
+        parseInt(this.state.factiCert_diasTerceros) +
+        parseInt(e.currentTarget.value);
+        this.setState({factiCert_diasCalculados: totalCalculado})
       break;
 
       case "diasVialidad":
         this.setState({factiCert_diasVialidad: e.currentTarget.value})
+        totalCalculado = parseInt(this.state.factiCert_diasPlazo) +
+        parseInt(this.state.factiCert_diasMunicipales) +
+        parseInt(this.state.factiCert_diasTerceros) +
+        parseInt(e.currentTarget.value);
+        this.setState({factiCert_diasCalculados: totalCalculado})
       break;
 
       case "diasMunicipales":
         this.setState({factiCert_diasMunicipales: e.currentTarget.value})
-      break;
-
-      case "diasMunicipales":
-        this.setState({factiCert_diasMunicipales: e.currentTarget.value})
+        totalCalculado = parseInt(this.state.factiCert_diasPlazo) +
+        parseInt(this.state.factiCert_diasVialidad) +
+        parseInt(this.state.factiCert_diasTerceros) +
+        parseInt(e.currentTarget.value);
+        this.setState({factiCert_diasCalculados: totalCalculado})
       break;
 
       case "diasTerceros":
         this.setState({factiCert_diasTerceros: e.currentTarget.value})
+        totalCalculado = parseInt(this.state.factiCert_diasPlazo) +
+        parseInt(this.state.factiCert_diasVialidad) +
+        parseInt(this.state.factiCert_diasMunicipales) +
+        parseInt(e.currentTarget.value);
+        this.setState({factiCert_diasCalculados: totalCalculado})
       break;
 
       case "diasCalculados":
-        this.setState({factiCert_diasCalculados: e.currentTarget.value})
       break;
 
       case "costoCompania":
+      var valorFormateado = new Intl.NumberFormat("es-CLP").format(e.currentTarget.value)
         this.setState({factiCert_costoCompania: e.currentTarget.value})
+        this.setState({factiCert_costoCompaniaFormatted: valorFormateado})
+
       break;
 
       case "observacion":
@@ -877,7 +1121,7 @@ class FactigisSGO extends React.Component {
         var detalle2 = _.filter(detalle1, (detalle)=>{
           return _.findIndex(selected, {'value': detalle.value}) ===-1;
         });
-          this.setState({factiCert_detalle1Value: x, factiCert_detalle2: detalle2, factiCert_detalle2_disabled: false});
+          this.setState({factiCert_detalle1Value: x, factiCert_detalle2: detalle2, factiCert_detalle2_disabled: false, factiCert_detalle3_disabled: true});
         //console.log("sin seleccionado", detalle2);
       break;
 
@@ -963,6 +1207,10 @@ class FactigisSGO extends React.Component {
                 <h8 className="">Clasificación: {this.state.facB_clasificacion}</h8>
                 <h8 className="">Fases Conexión: {this.state.facB_tiposFase}</h8>
                 <h8 className="">Punto Conexión: {this.state.facB_puntoConexion}</h8>
+                <h6 className="factigis_bo1-h6"><b>Niveles Cortocircuito: </b></h6>
+                <h8 className="">Coci1: {this.state.facB_coci1}</h8>
+                <h8 className="">Coci2: {this.state.facB_coci2}</h8>
+                <h8 className="">Coci3: {this.state.facB_coci3}</h8>
 
               </div>
                 <div className="wrapper_mid-split-1">
@@ -1084,8 +1332,47 @@ class FactigisSGO extends React.Component {
         <Modal isOpen={this.state.openFormularioVer} style={customStylesFormulario}>
           <h2 className="factigis_h2">(VER) Formulario Obras Adicionales</h2>
 
+          <h5 className="factigis_bo1_zonas">ID Factibilidad: <b>{this.state.facB_folio}</b></h5>
+          <h5 className="factigis_bo1_zonas">Certificado N°: <b>{this.state.facB_certificadoNumero}</b></h5>
           <br />
-          <button className="factigis_submitButton btn btn-info" onClick={this.closeModalFormulario.bind(this,'ver')}>Close</button>
+          <div className="factiCert_wrapper">
+
+            <div className="factiCert_left">
+              <h8 className="factiCert_h8">Plazo Ejecución Obras Adicionales (días):</h8>
+              <h8 className="factiCert_h8">Plazo Trámites Vialidad (días):</h8>
+              <h8 className="factiCert_h8">Plazo Permisos Municipales (días):</h8>
+              <h8 className="factiCert_h8">Plazo Autorización Terceros (días):</h8>
+              <h8 className="factiCert_h8">Plazo Total (días):</h8>
+              <h8 className="factiCert_h8">Costo Compañía ($):</h8>
+              <h8 className="factiCert_h8">Detalle 1:</h8>
+              <h8 className="factiCert_h8">Detalle 2:</h8>
+              <h8 className="factiCert_h8">Detalle 3:</h8>
+              <h8 className="factiCert_h8">Observación:</h8>
+            </div>
+
+            <div className="factiCert_right">
+              <input id="diasPlazo" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasPlazo}  title="Días Plazo" disabled={true}/>
+              <input id="diasVialidad" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasVialidad}  onChange={this.onChangeCert.bind(this)} title="Días Vialidad"  disabled={true} />
+              <input id="diasMunicipales" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasMunicipales}  onChange={this.onChangeCert.bind(this)} title="Días Municipales"  disabled={true} />
+              <input id="diasTerceros" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasTerceros}  onChange={this.onChangeCert.bind(this)} title="Días Terceros"  disabled={true} />
+              <input id="diasCalculados" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasCalculados}  onChange={this.onChangeCert.bind(this)} title="Días Calculados"  disabled={true}/>
+              {/*<input id="costoCompania" step="any" className="input_cert" type="number" min="0" placeholder="Ingrese Costo" value={this.state.factiCert_costoCompania}  onChange={this.onChangeCert.bind(this)} title="Costo Compañia"  disabled={true}/>*/}
+
+              <input id="costoCompania" className="input_cert" type="text" pattern = "^(0|[1-9][0-9]*)$" placeholder="Ingrese Costo" value={this.state.factiCert_costoCompania}  onChange={this.onChangeCert.bind(this)} title="Costo Compañia" disabled={true} />
+
+              <input id="txtDetalle1" className="input_cert" type="text"  placeholder="" value={this.state.factiCert_detalle1}  onChange={this.onChangeCert.bind(this)} title="Detalle 1"  disabled={true}/>
+              <input id="txtDetalle2" className="input_cert" type="text"  placeholder="" value={this.state.factiCert_detalle2}  onChange={this.onChangeCert.bind(this)} title="Detalle 2"  disabled={true}/>
+              <input id="txtDetalle3" className="input_cert" type="text"  placeholder="" value={this.state.factiCert_detalle3}  onChange={this.onChangeCert.bind(this)} title="Detalle 3"  disabled={true}/>
+              <input id="observacion" className="input_cert" type="text" placeholder="" value={this.state.factiCert_observacion}  onChange={this.onChangeCert.bind(this)} title="Observación"  disabled={true}/>
+            </div>
+
+          </div>
+          <div className="factiCert_admButtons_wrapper">
+            <button className="factigis_submitButton btn btn-danger" onClick={this.closeModalFormulario.bind(this,'eliminar')}>Eliminar</button>
+            <button className="factigis_submitButton btn btn-info" onClick={this.closeModalFormulario.bind(this,'ver')}>Close</button>
+          </div>
+          <br />
+
         </Modal>
         {/* Form Crear Cert */}
         <Modal isOpen={this.state.openFormularioCrear} style={customStylesFormularioCert}>
@@ -1096,11 +1383,11 @@ class FactigisSGO extends React.Component {
           <div className="factiCert_wrapper">
 
             <div className="factiCert_left">
-              <h8 className="factiCert_h8">Plazo Ejecución Obras Adicionales:</h8>
-              <h8 className="factiCert_h8">Plazo Trámites Vialidad:</h8>
-              <h8 className="factiCert_h8">Plazo Permisos Municipales:</h8>
-              <h8 className="factiCert_h8">Plazo Autorización Terceros:</h8>
-              <h8 className="factiCert_h8">Plazo Total:</h8>
+              <h8 className="factiCert_h8">Plazo Ejecución Obras Adicionales (días):</h8>
+              <h8 className="factiCert_h8">Plazo Trámites Vialidad (días):</h8>
+              <h8 className="factiCert_h8">Plazo Permisos Municipales (días):</h8>
+              <h8 className="factiCert_h8">Plazo Autorización Terceros (días):</h8>
+              <h8 className="factiCert_h8">Plazo Total (días):</h8>
               <h8 className="factiCert_h8">Costo Compañía ($):</h8>
               <h8 className="factiCert_h8">Detalle 1:</h8>
               <h8 className="factiCert_h8">Detalle 2:</h8>
@@ -1113,17 +1400,21 @@ class FactigisSGO extends React.Component {
               <input id="diasVialidad" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasVialidad}  onChange={this.onChangeCert.bind(this)} title="Días Vialidad" />
               <input id="diasMunicipales" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasMunicipales}  onChange={this.onChangeCert.bind(this)} title="Días Municipales" />
               <input id="diasTerceros" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasTerceros}  onChange={this.onChangeCert.bind(this)} title="Días Terceros" />
-              <input id="diasCalculados" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasCalculados}  onChange={this.onChangeCert.bind(this)} title="Días Calculados" />
-              <input id="costoCompania" step="any" className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_costoCompania}  onChange={this.onChangeCert.bind(this)} title="Costo Compañia" />
+              <input id="diasCalculados" disabled={true} className="input_cert" type="number" min="0" placeholder="Seleccione Días" value={this.state.factiCert_diasCalculados}  onChange={this.onChangeCert.bind(this)} title="Días Calculados" />
+              {/*<input id="costoCompania" step="any" className="input_cert" type="number" min="0" placeholder="Ingrese Costo" value={this.state.factiCert_costoCompania}  onChange={this.onChangeCert.bind(this)} title="Costo Compañia" />*/}
 
+
+              <input id="costoCompania" className="input_cert" type="text" pattern = "^(0|[1-9][0-9]*)$" placeholder="Ingrese Costo" value={this.state.factiCert_costoCompania}  onChange={this.onChangeCert.bind(this)} title="Costo Compañia"  />
+
+              <h8 className="factiCert_h8_red"> $ {this.state.factiCert_costoCompaniaFormatted}</h8>
               <Select id="ddlDetalle1"  onChange={this.onChangeDetalle.bind(this, "detalle1")} options={this.state.factiCert_detalle1}
-              simpleValue clearable={true} searchable={false} value={this.state.factiCert_detalle1Value} placeholder="Seleccione Detalle"/>
+              simpleValue clearable={false} searchable={false} value={this.state.factiCert_detalle1Value} placeholder="Seleccione Detalle"/>
 
               <Select id="ddlDetalle2"  onChange={this.onChangeDetalle.bind(this, "detalle2")} options={this.state.factiCert_detalle2}
-              simpleValue clearable={true} searchable={false} value={this.state.factiCert_detalle2Value} placeholder="Seleccione Detalle" disabled={this.state.factiCert_detalle2_disabled}/>
+              simpleValue clearable={false} searchable={false} value={this.state.factiCert_detalle2Value} placeholder="Seleccione Detalle" disabled={this.state.factiCert_detalle2_disabled}/>
 
               <Select id="ddlDetalle3" onChange={this.onChangeDetalle.bind(this, "detalle3")} options={this.state.factiCert_detalle3}
-              simpleValue clearable={true} searchable={false} value={this.state.factiCert_detalle3Value} placeholder="Seleccione Detalle" disabled={this.state.factiCert_detalle3_disabled}/>
+              simpleValue clearable={false} searchable={false} value={this.state.factiCert_detalle3Value} placeholder="Seleccione Detalle" disabled={this.state.factiCert_detalle3_disabled}/>
 
               <input id="observacion" className="input_cert" type="text" placeholder="Escriba aquí" value={this.state.factiCert_observacion}  onChange={this.onChangeCert.bind(this)} title="Observación" />
             </div>
@@ -1131,13 +1422,13 @@ class FactigisSGO extends React.Component {
           </div>
           <div className="factiCert_admButtons_wrapper">
             <button className="factigis_submitButton btn btn-success" onClick={this.closeModalFormulario.bind(this,'guardarCertificado')}>Crear</button>
-            <button className="factigis_submitButton btn btn-danger" onClick={this.closeModalFormulario.bind(this,'eliminar')}>Eliminar</button>
+
             <button className="factigis_submitButton btn btn-info" onClick={this.closeModalFormulario.bind(this,'crear')}>Cerrar</button>
           </div>
         </Modal>
 
         {/* Mensaje Final Formulario */}
-        <Modal isOpen={this.state.openModalOperation} style={customStylesFormulario}>
+        <Modal isOpen={this.state.openModalOperation} style={customStylesFormularioCert2}>
           <h2 className="factigis_h2">Formulario Obras Adicionales</h2>
           <p>{this.state.modalStatusCert}</p>
           <br />
