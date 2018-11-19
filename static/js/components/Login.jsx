@@ -7,10 +7,11 @@ import {Button, IconButton} from 'react-toolbox/lib/button';
 import env from '../services/factigis_services/config';
 import {Snackbar} from 'react-toolbox';
 
-
+/*Class for Login Access*/
 class LoginApp extends React.Component {
   constructor(){
     super();
+    /* handles the message in the snackbar. Also user and password provided*/
     this.state = {
       errorTextLabel: 'Este campo es requerido',
       snackbarMessage: '',
@@ -20,10 +21,11 @@ class LoginApp extends React.Component {
 
     }
   }
+  /* Handles the snackbar to become active when user clicks login button */
   handleClick = () => {
    this.setState({active: true})
   };
-
+  /* Handles the login in for users vialactea and w/o vialactea*/ 
   onClick(){
     var userValue = this.state.username;
     var passValue =  this.state.password;
@@ -31,7 +33,7 @@ class LoginApp extends React.Component {
     if (userValue=="" || passValue==""){
       this.setState({snackbarMessage: 'Login Incorrecto. Ingrese usuario y password', snackbaropen: true});
       this.handleClick();
-      //notifications('Login incorrecto, intente nuevamente.', 'Login_Error', '.notification-login');
+      
       return;
     }
     //For domain users
@@ -57,10 +59,11 @@ class LoginApp extends React.Component {
 
       });
       return;
-
+    //For users who doesnt put the domain  
     }else {
       console.log("Trying to access" + env.SAVEAPPLICATIONNAME+ "_DASHBOARD");
       userValue =  'vialactea\\'+this.state.username;
+      //Handles the login and return values for snackbar and if the login was successful
       factigisLogin(userValue, passValue, (cb)=>{
         if( !cb[0] && !cb[1] ) {
           this.setState({snackbarMessage: cb[2], snackbaropen: true});
@@ -81,7 +84,7 @@ class LoginApp extends React.Component {
       });
     }
   }
-
+  //Before mounting , remove cookies saved.
   componentWillMount(){
     localStorage.removeItem('token');
     cookieHandler.remove('myLetter');
@@ -90,7 +93,7 @@ class LoginApp extends React.Component {
     cookieHandler.remove('wllExp');
     cookieHandler.remove('tkn');
   }
-
+  //After mounting get the screenshot to show in the login.
   componentDidMount(){
     //change the loginwall dinamically
     let randomPicNumber = Math.floor((Math.random() * 6) + 1);
@@ -102,22 +105,22 @@ class LoginApp extends React.Component {
   $('.login_wrapper_content').css("background-image", "url("+randomPicSrc+")").css('background-size','100% 100%');
 
   }
-
+  //If user use ebter to log in.
   handleKeyPress(target){
     if(target.charCode==13){
-
         this.onClick();
-
     }
   }
+
+  //Makes snackbar to hide
   handleSnackbarClick = () => {
      this.setState({active: false})
   };
-
+  //Shows the snackbar
   handleClick = () => {
    this.setState({active: true})
   };
-
+  //Change the values in the state for user and pass.
   handleChange = (name, value) => {
      this.setState({...this.state, [name]: value});
   };

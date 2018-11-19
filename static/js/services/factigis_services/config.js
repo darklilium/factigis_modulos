@@ -1,7 +1,7 @@
 //v1.7.2d
 
 //DEV MODE
-
+/*
 const env = {
   ROOT: "static/css/",
   CSSDIRECTORY: 'static/css/', //using
@@ -13,6 +13,21 @@ const env = {
   BUILDFOR: "INTERNA",
   SSL: 'https://'
 }
+*/
+
+
+const env = {
+  ROOT: "static/css/",
+  CSSDIRECTORY: 'static/css/', //using
+  ROUTEPATH: '/',
+  ENVIRONMENT: 'DEVELOPMENT',
+  WEBSERVERADDRESS: "",
+  SAVEAPPLICATIONMODULE: "FACTIGIS_DESA",
+  SAVEAPPLICATIONNAME: 'REACT_FACTIGIS_DESA',
+  BUILDFOR: "EXTERNA",
+  SSL: 'https://'
+}
+
 
 //TEST MODE - INTERNO (pruebas factigis)
 /*
